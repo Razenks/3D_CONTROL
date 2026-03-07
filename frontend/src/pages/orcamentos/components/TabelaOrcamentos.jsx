@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ModalVerOrcamento from './ModalVerOrcamento';
+import ModalAnalisarOrcamento from './ModalAnalisarOrcamento';
+import ModeloOrcamentoCliente from './ModeloOrcamentoCliente';
+import { useNavigate } from 'react-router-dom';
 
-export default function TabelaOrcamentos({ titulo, dados, isHistorico = false }) {
+export default function TabelaOrcamentos({ titulo, dados, isHistorico = false, onRefresh }) {
+  const [orcamentoSelecionado, setOrcamentoSelecionado] = useState(null);
+  const [isModalVerOpen, setIsModalVerOpen] = useState(false);
+  const [isModalAnalisarOpen, setIsModalAnalisarOpen] = useState(false);
+  const [isModeloClienteOpen, setIsModeloClienteOpen] = useState(false);
+  const navigate = useNavigate();
+
   // Função auxiliar para definir a cor do badge de status
   const getStatusEstilo = (status) => {
     switch (status) {
@@ -17,6 +27,29 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false })
     }
   };
 
+  const formatarData = (dataString) => {
+    return new Date(dataString).toLocaleDateString('pt-BR');
+  };
+
+  const handleVer = (orc) => {
+    setOrcamentoSelecionado(orc);
+    setIsModalVerOpen(true);
+  };
+
+  const handleAnalisar = (orc) => {
+    setOrcamentoSelecionado(orc);
+    setIsModalAnalisarOpen(true);
+  };
+
+  const handleModeloCliente = (orc) => {
+    setOrcamentoSelecionado(orc);
+    setIsModeloClienteOpen(true);
+  };
+
+  const handleImprimir = (orc) => {
+    navigate('/impressoes');
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -29,8 +62,8 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false })
             <tr className="text-sm text-gray-500 bg-white border-b border-gray-200">
               <th className="px-6 py-3 font-semibold">ID</th>
               <th className="px-6 py-3 font-semibold">Cliente / Projeto</th>
-              <th className="px-6 py-3 font-semibold">Data da Solicitação</th>
-              {isHistorico && <th className="px-6 py-3 font-semibold">Valor Final</th>}
+              <th className="px-6 py-3 font-semibold">Data</th>
+              <th className="px-6 py-3 font-semibold">Valor</th>
               <th className="px-6 py-3 font-semibold">Status</th>
               <th className="px-6 py-3 font-semibold text-right">Ações</th>
             </tr>
@@ -39,31 +72,53 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false })
             {dados.length > 0 ? (
               dados.map((orcamento) => (
                 <tr key={orcamento.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-bold text-[#2A3240]">{orcamento.id}</td>
+                  <td className="px-6 py-4 font-bold text-[#2A3240]">ORC-{orcamento.id}</td>
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-[#2A3240]">{orcamento.cliente}</div>
+                    <div className="font-semibold text-[#2A3240]">{orcamento.cliente || 'Consumidor Final'}</div>
                     <div className="text-gray-500 text-xs">{orcamento.projeto}</div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{orcamento.data}</td>
+                  <td className="px-6 py-4 text-gray-600">{formatarData(orcamento.created_at)}</td>
                   
-                  {isHistorico && (
-                    <td className="px-6 py-4 font-medium text-[#2A3240]">
-                      {orcamento.valor ? `R$ ${orcamento.valor}` : '-'}
-                    </td>
-                  )}
+                  <td className="px-6 py-4 font-medium text-[#2A3240]">
+                    R$ {parseFloat(orcamento.valor_total).toFixed(2).replace('.', ',')}
+                  </td>
                   
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusEstilo(orcamento.status)}`}>
                       {orcamento.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    {isHistorico ? (
-                      <button className="text-[#2A3240] hover:text-[#FF9B54] font-semibold text-sm transition-colors">
-                        Ver Detalhes
+                  <td className="px-6 py-4 text-right flex justify-end gap-2 items-center">
+                    <button 
+                      onClick={() => handleVer(orcamento)}
+                      className="text-[#2A3240] hover:text-[#FF9B54] font-semibold text-xs transition-colors"
+                    >
+                      Ver
+                    </button>
+                    
+                    <button 
+                      onClick={() => handleModeloCliente(orcamento)}
+                      className="text-blue-600 hover:text-blue-800 font-bold text-[10px] uppercase transition-colors px-2"
+                      title="Gerar PDF para enviar ao cliente"
+                    >
+                      PDF Cliente
+                    </button>
+
+                    {orcamento.status === 'Aprovado' && (
+                      <button 
+                        onClick={() => handleImprimir(orcamento)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-colors uppercase"
+                        title="Adicionar na fila de impressão"
+                      >
+                        Imprimir
                       </button>
-                    ) : (
-                      <button className="bg-[#2A3240] hover:bg-gray-800 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors">
+                    )}
+
+                    {!isHistorico && orcamento.status !== 'Aprovado' && orcamento.status !== 'Rejeitado' && (
+                      <button 
+                        onClick={() => handleAnalisar(orcamento)}
+                        className="bg-[#2A3240] hover:bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-colors uppercase"
+                      >
                         Analisar
                       </button>
                     )}
@@ -72,7 +127,7 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false })
               ))
             ) : (
               <tr>
-                <td colSpan={isHistorico ? 6 : 5} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   Nenhum orçamento encontrado nesta categoria.
                 </td>
               </tr>
@@ -80,6 +135,25 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false })
           </tbody>
         </table>
       </div>
+
+      <ModalVerOrcamento 
+        isOpen={isModalVerOpen} 
+        onClose={() => setIsModalVerOpen(false)} 
+        orcamento={orcamentoSelecionado} 
+      />
+
+      <ModalAnalisarOrcamento 
+        isOpen={isModalAnalisarOpen} 
+        onClose={() => setIsModalAnalisarOpen(false)} 
+        orcamento={orcamentoSelecionado} 
+        onSucesso={onRefresh}
+      />
+
+      <ModeloOrcamentoCliente 
+        isOpen={isModeloClienteOpen}
+        onClose={() => setIsModeloClienteOpen(false)}
+        orcamento={orcamentoSelecionado}
+      />
     </div>
   );
 }

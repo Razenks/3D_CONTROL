@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 export default function ModalNovoProduto({ isOpen, onClose, onSalvar }) {
   const [formData, setFormData] = useState({
     nome: '',
-    tempoHoras: '',
-    dataFabricacao: '',
-    custoMaterial: '',
-    margemLucro: ''
+    tempo_horas: '',
+    data_fabricacao: '',
+    custo_material: '',
+    margem_lucro: '',
+    quantidade: 1
   });
 
   if (!isOpen) return null;
@@ -20,7 +21,7 @@ export default function ModalNovoProduto({ isOpen, onClose, onSalvar }) {
     e.preventDefault();
     onSalvar(formData);
     // Limpa o formulário após salvar
-    setFormData({ nome: '', tempoHoras: '', dataFabricacao: '', custoMaterial: '', margemLucro: '' });
+    setFormData({ nome: '', tempo_horas: '', data_fabricacao: '', custo_material: '', margem_lucro: '', quantidade: 1 });
   };
 
   return (
@@ -55,11 +56,11 @@ export default function ModalNovoProduto({ isOpen, onClose, onSalvar }) {
               <label className="block text-sm font-semibold text-[#2A3240] mb-1">Tempo (Horas)</label>
               <input
                 type="number"
-                name="tempoHoras"
+                name="tempo_horas"
                 required
                 min="0"
                 step="0.5"
-                value={formData.tempoHoras}
+                value={formData.tempo_horas}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A3240]"
                 placeholder="Ex: 4.5"
@@ -69,43 +70,57 @@ export default function ModalNovoProduto({ isOpen, onClose, onSalvar }) {
               <label className="block text-sm font-semibold text-[#2A3240] mb-1">Data de Fabricação</label>
               <input
                 type="date"
-                name="dataFabricacao"
+                name="data_fabricacao"
                 required
-                value={formData.dataFabricacao}
+                value={formData.data_fabricacao}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A3240]"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-2">
-            <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Custo Material (R$)</label>
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Quantidade</label>
               <input
                 type="number"
-                name="custoMaterial"
+                name="quantidade"
                 required
-                min="0"
-                step="0.01"
-                value={formData.custoMaterial}
+                min="1"
+                value={formData.quantidade}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A3240]"
-                placeholder="Ex: 12.50"
+                placeholder="Ex: 1"
               />
             </div>
-            <div>
+             <div>
               <label className="block text-sm font-semibold text-[#2A3240] mb-1">Margem de Lucro (%)</label>
               <input
                 type="number"
-                name="margemLucro"
+                name="margem_lucro"
                 required
                 min="0"
-                value={formData.margemLucro}
+                value={formData.margem_lucro}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A3240]"
                 placeholder="Ex: 300"
               />
             </div>
+          </div>
+
+          <div className="pt-2">
+              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Custo Material (R$)</label>
+              <input
+                type="number"
+                name="custo_material"
+                required
+                min="0"
+                step="0.01"
+                value={formData.custo_material}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A3240]"
+                placeholder="Ex: 12.50"
+              />
           </div>
 
           <div className="mt-6 flex justify-end gap-3 pt-4">

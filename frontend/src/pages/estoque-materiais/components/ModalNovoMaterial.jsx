@@ -1,21 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
   const [formData, setFormData] = useState({
     tipo: 'PLA',
-    marca: '',
-    cor: '',
+    marca_id: '',
+    cor_id: '',
+    cor_codigo: '', 
+    cor_nome_exibicao: '', 
     hexCor: '#000000',
     custoKG: '',
     quantidadeInicial: '1000',
     unidade: 'g'
   });
 
+  const [marcas, setMarcas] = useState([]);
+  const [cores, setCores] = useState([]);
+  const [loadingExtras, setLoadingExtras] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchExtras();
+    }
+  }, [isOpen]);
+
+  const fetchExtras = async () => {
+    setLoadingExtras(true);
+    const token = localStorage.getItem('auth_token');
+    try {
+      const [resM, resC] = await Promise.all([
+        fetch('http://localhost:8000/api/marcas', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('http://localhost:8000/api/cores', { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
+      if (resM.ok) setMarcas(await resM.json());
+      if (resC.ok) setCores(await resC.json());
+    } catch (err) {
+      console.error('Erro ao carregar extras:', err);
+    } finally {
+      setLoadingExtras(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Se mudar para Resina, altera unidade para ml automaticamente
+    
+    // Lógica para sincronizar Input de Número com Dropdown de Cor
+    if (name === 'cor_codigo') {
+        const corEncontrada = cores.find(c => c.codigo === value);
+        setFormData(prev => ({ 
+            ...prev, 
+            cor_codigo: value,
+            cor_id: corEncontrada ? corEncontrada.id : '',
+            cor_nome_exibicao: corEncontrada ? corEncontrada.nome : 'Não encontrada',
+            hexCor: corEncontrada ? (corEncontrada.hex || prev.hexCor) : prev.hexCor
+        }));
+        return;
+    }
+
+    // Lógica para sincronizar Dropdown de Cor com Input de Número
+    if (name === 'cor_id') {
+        const corEncontrada = cores.find(c => c.id === parseInt(value));
+        setFormData(prev => ({
+            ...prev,
+            cor_id: value,
+            cor_codigo: corEncontrada ? corEncontrada.codigo : '',
+            cor_nome_exibicao: corEncontrada ? corEncontrada.nome : '',
+            hexCor: corEncontrada ? (corEncontrada.hex || prev.hexCor) : prev.hexCor
+        }));
+        return;
+    }
+
     if (name === 'tipo' && (value === 'Resina Standard' || value === 'Resina ABS-Like')) {
         setFormData(prev => ({ ...prev, [name]: value, unidade: 'ml' }));
     } else if (name === 'tipo') {
@@ -25,15 +80,56 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
     }
   };
 
+  const handleAddMarca = async () => {
+    const nome = prompt('Digite o nome da nova Marca:');
+    if (!nome) return;
+    const token = localStorage.getItem('auth_token');
+    try {
+        const res = await fetch('http://localhost:8000/api/marcas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ nome })
+        });
+        if (res.ok) fetchExtras();
+    } catch (err) { alert('Erro ao adicionar marca'); }
+  };
+
+  const handleAddCor = async () => {
+    const codigo = prompt('Digite o número/código da cor:');
+    const nome = prompt('Digite o nome da cor:');
+    if (!codigo || !nome) return;
+    const token = localStorage.getItem('auth_token');
+    try {
+        const res = await fetch('http://localhost:8000/api/cores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ codigo, nome })
+        });
+        if (res.ok) fetchExtras();
+    } catch (err) { alert('Erro ao adicionar cor'); }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSalvar(formData);
+    if (!formData.marca_id || !formData.cor_id) {
+        alert('Por favor, selecione uma marca e uma cor válida.');
+        return;
+    }
+    const payload = {
+        tipo: formData.tipo,
+        marca_id: formData.marca_id,
+        cor_id: formData.cor_id,
+        custo_unidade: formData.custoKG,
+        quantidade_restante: formData.quantidadeInicial,
+        unidade: formData.unidade
+    };
+    onSalvar(payload);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border-t-4 border-[#FF9B54]">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border-t-4 border-[#FF9B54] my-auto">
         
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h3 className="text-lg font-bold text-[#2A3240]">Cadastrar Novo Insumo</h3>
@@ -45,14 +141,14 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Tipo de Material</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Material</label>
               <select 
                 name="tipo" 
                 value={formData.tipo} 
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3240] outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
               >
                 <option value="PLA">PLA</option>
                 <option value="PETG">PETG</option>
@@ -63,50 +159,67 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Marca</label>
-              <input
-                type="text"
-                name="marca"
-                required
-                value={formData.marca}
-                onChange={handleChange}
-                placeholder="Ex: Sunlu, Voolt3D"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3240] outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Cor (Nome)</label>
-              <input
-                type="text"
-                name="cor"
-                required
-                value={formData.cor}
-                onChange={handleChange}
-                placeholder="Ex: Space Grey"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3240] outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Cor Visual</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  name="hexCor"
-                  value={formData.hexCor}
-                  onChange={handleChange}
-                  className="w-12 h-10 border-none rounded cursor-pointer"
-                />
-                <span className="text-xs text-gray-500 uppercase font-mono">{formData.hexCor}</span>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Marca</label>
+              <div className="flex gap-2">
+                <select
+                    name="marca_id"
+                    required
+                    value={formData.marca_id}
+                    onChange={handleChange}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
+                >
+                    <option value="">Selecione...</option>
+                    {marcas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
+                </select>
+                <button type="button" onClick={handleAddMarca} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+          <div className="space-y-4 border-t border-gray-100 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Código da Cor</label>
+                    <input
+                        type="text"
+                        name="cor_codigo"
+                        value={formData.cor_codigo}
+                        onChange={handleChange}
+                        placeholder="Ex: 1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Selecionar Cor</label>
+                    <div className="flex gap-2">
+                        <select
+                            name="cor_id"
+                            required
+                            value={formData.cor_id}
+                            onChange={handleChange}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
+                        >
+                            <option value="">Selecione...</option>
+                            {cores.map(c => <option key={c.id} value={c.id}>{c.codigo} - {c.nome}</option>)}
+                        </select>
+                        <button type="button" onClick={handleAddCor} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
+                    </div>
+                </div>
+            </div>
+            
+            {formData.cor_nome_exibicao && (
+                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-200">
+                    <div style={{ backgroundColor: formData.hexCor }} className="w-6 h-6 rounded-full border border-gray-300 shadow-inner"></div>
+                    <span className="text-xs font-black text-[#2A3240] uppercase tracking-wider">
+                        {formData.cor_nome_exibicao}
+                    </span>
+                </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Custo (R$ por KG/L)</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Custo (R$ por KG/L)</label>
               <input
                 type="number"
                 name="custoKG"
@@ -115,35 +228,26 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
                 value={formData.custoKG}
                 onChange={handleChange}
                 placeholder="Ex: 120.00"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3240] outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#2A3240] mb-1">Peso/Vol Inicial ({formData.unidade})</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Qtd. Inicial ({formData.unidade})</label>
               <input
                 type="number"
                 name="quantidadeInicial"
                 required
                 value={formData.quantidadeInicial}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3240] outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
               />
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 text-sm font-bold text-white bg-[#FF9B54] hover:bg-orange-500 rounded-lg transition-colors shadow-sm"
-            >
-              Adicionar ao Estoque
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onClick={onClose} className="px-4 py-3 text-xs font-black text-gray-500 uppercase tracking-widest hover:text-red-500 transition-colors order-2 sm:order-1">Cancelar</button>
+            <button type="submit" className="px-8 py-4 text-xs font-black text-white bg-[#2A3240] hover:bg-gray-800 rounded-xl transition-all shadow-lg uppercase tracking-widest order-1 sm:order-2">
+              Confirmar Cadastro
             </button>
           </div>
         </form>

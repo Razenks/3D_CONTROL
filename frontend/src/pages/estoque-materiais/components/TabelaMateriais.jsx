@@ -1,93 +1,85 @@
 import React from 'react';
 
-export default function TabelaMateriais({ materiais }) {
+export default function TabelaMateriais({ materiais, loading, onRefresh, onEdit }) {
   
-  // Função auxiliar para definir o status baseado no peso/volume restante
-  const renderStatusBadge = (quantidade, tipoUnidade) => {
-    let status = 'OK';
-    let corClasses = 'bg-green-100 text-green-800 border-green-200';
-
-    // Lógica para Filamentos (gramas) ou Resina (ml)
-    if (quantidade <= 200) {
-      status = 'Crítico';
-      corClasses = 'bg-red-100 text-red-800 border-red-200';
-    } else if (quantidade <= 400) {
-      status = 'Atenção';
-      corClasses = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    }
-
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${corClasses}`}>
-        {status}
-      </span>
-    );
+  const handleToggleAtivo = async (material) => {
+    const token = localStorage.getItem('auth_token');
+    try {
+        const response = await fetch(`http://localhost:8000/api/materiais/${material.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ ativo: !material.ativo })
+        });
+        if (response.ok) onRefresh();
+    } catch (err) { console.error(err); }
   };
 
+  if (loading) return <div className="text-center py-10 text-gray-400 font-bold uppercase animate-pulse">Carregando...</div>;
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-        <h3 className="text-lg font-bold text-[#2A3240]">Insumos (Filamentos e Resinas)</h3>
-        <span className="text-sm text-gray-500 font-medium">Total de Insumos: {materiais.length}</span>
-      </div>
-      
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="text-sm text-gray-500 bg-white border-b border-gray-200">
-              <th className="px-6 py-3 font-semibold">Material / Marca</th>
-              <th className="px-6 py-3 font-semibold">Cor</th>
-              <th className="px-6 py-3 font-semibold">Custo (KG/Litro)</th>
-              <th className="px-6 py-3 font-semibold">Restante</th>
-              <th className="px-6 py-3 font-semibold">Status</th>
-              <th className="px-6 py-3 font-semibold text-right">Ações</th>
+        <table className="w-full text-left">
+          <thead className="bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-widest">
+            <tr>
+              <th className="px-6 py-4">Material / Marca</th>
+              <th className="px-6 py-4 text-center">Cor</th>
+              <th className="px-6 py-4">Qtd. Restante</th>
+              <th className="px-6 py-4">Custo / Un</th>
+              <th className="px-6 py-4 text-right">Ações</th>
             </tr>
           </thead>
-          <tbody className="text-sm divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100">
             {materiais.length > 0 ? (
-              materiais.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+              materiais.map((mat) => (
+                <tr key={mat.id} className={`hover:bg-gray-50/50 transition-colors ${!mat.ativo ? 'opacity-40 grayscale bg-gray-50' : ''}`}>
                   <td className="px-6 py-4">
-                    <div className="font-bold text-[#2A3240]">{item.tipo}</div>
-                    <div className="text-gray-500 text-xs">{item.marca}</div>
+                    <div className="font-bold text-[#2A3240]">{mat.tipo}</div>
+                    <div className="text-[10px] text-gray-400 uppercase font-black">{mat.marca?.nome || 'Marca não informada'}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-5 h-5 rounded-full border border-gray-200 shadow-inner mb-1" style={{ backgroundColor: mat.cor?.hex || '#ccc' }}></div>
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">{mat.cor?.nome || 'S/ Cor'}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <span 
-                        className="w-4 h-4 rounded-full border border-gray-300 shadow-sm" 
-                        style={{ backgroundColor: item.hexCor || '#ccc' }}
-                        title={item.cor}
-                      ></span>
-                      <span className="font-semibold text-gray-700">{item.cor}</span>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5 max-w-[60px]">
+                        <div className={`h-1.5 rounded-full ${mat.quantidade_restante < 200 ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${(mat.quantidade_restante / 1000) * 100}%` }}></div>
+                      </div>
+                      <span className="text-xs font-black text-gray-600">{mat.quantidade_restante}{mat.unidade}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-medium text-gray-600">
-                    R$ {item.custoUnidade.toFixed(2).replace('.', ',')}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-lg font-bold text-[#2A3240]">{item.quantidadeRestante}</span>
-                      <span className="text-xs font-semibold text-gray-500 uppercase">{item.unidade}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {renderStatusBadge(item.quantidadeRestante, item.unidade)}
-                  </td>
+                  <td className="px-6 py-4 font-bold text-gray-600 text-sm">R$ {mat.custo_unidade}</td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-[#2A3240] hover:text-[#FF9B54] font-semibold text-sm transition-colors mr-4">
-                      Atualizar Peso
-                    </button>
-                    <button className="text-red-600 hover:text-red-800 font-semibold text-sm transition-colors">
-                      Baixa
-                    </button>
+                    <div className="flex justify-end gap-3">
+                        <button onClick={() => onEdit(mat)} className="text-gray-400 hover:text-blue-600 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                        
+                        <button 
+                            onClick={() => handleToggleAtivo(mat)} 
+                            className={`${mat.ativo ? 'text-gray-300 hover:text-red-500' : 'text-green-500 hover:text-green-700'} transition-colors`}
+                            title={mat.ativo ? 'Desativar' : 'Ativar'}
+                        >
+                            {mat.ativo ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.001 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
-              <tr>
-                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                  Nenhum material cadastrado no estoque.
-                </td>
-              </tr>
+              <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400 italic">Sem materiais no estoque.</td></tr>
             )}
           </tbody>
         </table>

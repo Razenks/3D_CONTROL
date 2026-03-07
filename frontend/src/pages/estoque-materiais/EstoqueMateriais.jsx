@@ -2,71 +2,60 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import TabelaMateriais from './components/TabelaMateriais';
 import ModalNovoMaterial from './components/ModalNovoMaterial';
+import ModalEditarMaterial from './components/ModalEditarMaterial';
 
 export default function EstoqueMateriais() {
   const [materiais, setMateriais] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [materialSelecionado, setMaterialSelecionado] = useState(null);
 
-  // Lógica para salvar o novo material no estado (futuramente via PHP)
-  const handleSalvarMaterial = (novoMaterialForm) => {
-    const materialFormatado = {
-      id: Date.now(),
-      tipo: novoMaterialForm.tipo,
-      marca: novoMaterialForm.marca,
-      cor: novoMaterialForm.cor,
-      hexCor: novoMaterialForm.hexCor,
-      custoUnidade: parseFloat(novoMaterialForm.custoKG),
-      quantidadeRestante: parseFloat(novoMaterialForm.quantidadeInicial),
-      unidade: novoMaterialForm.unidade
-    };
-
-    setMateriais([materialFormatado, ...materiais]);
-    console.log("Material adicionado com sucesso!", materialFormatado);
+  const fetchMateriais = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('auth_token');
+    try {
+      const response = await fetch('http://localhost:8000/api/materiais', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) setMateriais(await response.json());
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    // Mock inicial de dados (visto na resposta anterior)
-    setTimeout(() => {
-      setMateriais([
-        { id: 1, tipo: 'PLA', marca: 'Sunlu', cor: 'Preto', hexCor: '#000000', custoUnidade: 115.00, quantidadeRestante: 850, unidade: 'g' },
-        { id: 2, tipo: 'PETG', marca: 'Voolt3D', cor: 'Branco', hexCor: '#FFFFFF', custoUnidade: 95.00, quantidadeRestante: 350, unidade: 'g' },
-      ]);
-      setLoading(false);
-    }, 400);
-  }, []);
+  useEffect(() => { fetchMateriais(); }, []);
+
+  const handleSalvarNovo = async (dados) => {
+    const token = localStorage.getItem('auth_token');
+    try {
+      const response = await fetch('http://localhost:8000/api/materiais', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(dados)
+      });
+      if (response.ok) fetchMateriais();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleEdit = (mat) => {
+    setMaterialSelecionado(mat);
+    setIsEditModalOpen(true);
+  };
 
   return (
     <Layout>
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="mb-8 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
-          <h2 className="text-2xl font-extrabold text-[#2A3240]">Estoque de Materiais</h2>
-          <p className="text-sm text-gray-600 mt-1">Gerencie seus carretéis e galões de resina.</p>
+          <h2 className="text-2xl font-black text-[#2A3240] uppercase tracking-tighter">Estoque de Materiais</h2>
+          <p className="text-sm text-gray-500 font-medium">Controle seu nível de filamentos e resinas.</p>
         </div>
-        
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-[#FF9B54] hover:bg-orange-500 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Novo Material
-        </button>
+        <button onClick={() => setIsModalOpen(true)} className="bg-[#2A3240] hover:bg-gray-800 text-white font-black py-3 px-8 rounded-xl shadow-lg uppercase text-xs tracking-widest">+ Novo Material</button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-gray-500">Sincronizando estoque...</div>
-      ) : (
-        <TabelaMateriais materiais={materiais} />
-      )}
+      <TabelaMateriais materiais={materiais} loading={loading} onRefresh={fetchMateriais} onEdit={handleEdit} />
 
-      {/* Chamada do Modal */}
-      <ModalNovoMaterial 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSalvar={handleSalvarMaterial} 
-      />
+      <ModalNovoMaterial isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSalvar={handleSalvarNovo} />
+      <ModalEditarMaterial isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} material={materialSelecionado} onSucesso={fetchMateriais} />
     </Layout>
   );
 }

@@ -8,20 +8,14 @@ import Login from './pages/login/Login';
 import Home from './pages/home/Home';
 import Orcamentos from './pages/orcamentos/Orcamentos';
 import Impressoes from './pages/impressoes/Impressoes';
-import CalculadoraPrecificacao from './pages/calculadora/CalculadoraPrecificacao';
 import EstoqueProdutos from './pages/estoque-produtos/EstoqueProdutos';
 import EstoqueMateriais from './pages/estoque-materiais/EstoqueMateriais';
-
-// ==========================================
-// IMPORTAÇÕES FUTURAS (Aguardando criação)
-// ==========================================
-// import Estoque from './pages/estoque/Estoque';
-
-// import Relatorios from './pages/relatorios/Relatorios';
-
-// Nota de Arquitetura: Quando formos ativar as rotas abaixo, 
-// poderemos importar o componente <Layout> que criamos para 
-// envolver essas páginas privadas, mantendo o Sidebar e o Header.
+import CalculadoraPrecificacao from './pages/calculadora/CalculadoraPrecificacao';
+import Relatorios from './pages/relatorios/Relatorios';
+import Configuracoes from './pages/configuracoes/Configuracoes';
+import Clientes from './pages/clientes/Clientes';
+import CatalogoProdutos from './pages/impressoes/CatalogoProdutos';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
@@ -31,16 +25,17 @@ export default function App() {
         {/* ROTA PÚBLICA */}
         <Route path="/" element={<Login />} />
 
-        {/* ROTAS PRIVADAS DO SISTEMA (Comentadas) */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/orcamentos" element={<Orcamentos />} />
-        <Route path="/impressoes" element={<Impressoes />} />
-        <Route path="/produtos-estoque" element={<EstoqueProdutos />} />
-        <Route path="/materiais-estoque" element={<EstoqueMateriais />} />
-        <Route path="/calculadora" element={<CalculadoraPrecificacao />} />
-        {/*
-        <Route path="/relatorios" element={<Relatorios />} />
-        */}
+        {/* ROTAS PRIVADAS DO SISTEMA */}
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/orcamentos" element={<ProtectedRoute><Orcamentos /></ProtectedRoute>} />
+        <Route path="/impressoes" element={<ProtectedRoute><Impressoes /></ProtectedRoute>} />
+        <Route path="/produtos-estoque" element={<ProtectedRoute><EstoqueProdutos /></ProtectedRoute>} />
+        <Route path="/materiais-estoque" element={<ProtectedRoute><EstoqueMateriais /></ProtectedRoute>} />
+        <Route path="/calculadora" element={<ProtectedRoute><CalculadoraPrecificacao /></ProtectedRoute>} />
+        <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+        <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
+        <Route path="/catalogo" element={<ProtectedRoute><CatalogoProdutos /></ProtectedRoute>} />
+        <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
 
       </Routes>
     </Router>

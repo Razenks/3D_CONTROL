@@ -2,101 +2,93 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import TabelaEstoqueProdutos from './components/TabelaEstoqueProdutos';
 import ModalNovoProduto from './components/ModalNovoProduto';
+import ModalEditarProduto from './components/ModalEditarProduto';
 
 export default function EstoqueProdutos() {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [mostrarEsgotados, setMostrarEsgotados] = useState(false);
 
-  // Aumenta a quantidade
-  const handleIncrementarQuantidade = (id) => {
-    setProdutos((prev) => prev.map((prod) => prod.id === id ? { ...prod, quantidade: prod.quantidade + 1 } : prod));
-    // fetch POST para atualizar no banco...
-  };
-
-  // Diminui a quantidade (Simulação de Venda)
-  const handleDecrementarQuantidade = (id) => {
-    setProdutos((prev) => prev.map((prod) => {
-      if (prod.id === id && prod.quantidade > 0) {
-        return { ...prod, quantidade: prod.quantidade - 1 };
+  const fetchProdutos = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('auth_token');
+    try {
+      const response = await fetch('http://localhost:8000/api/produtos', {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setProdutos(data);
       }
-      return prod;
-    }));
-    // fetch POST para atualizar no banco...
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
-  // Lógica ao Salvar o Formulário do Modal
-  const handleSalvarProduto = (dadosFormulario) => {
-    // Cálculo básico de preço final baseado no custo e % de lucro
-    const custo = parseFloat(dadosFormulario.custoMaterial);
-    const lucro = parseFloat(dadosFormulario.margemLucro) / 100;
-    const precoCalculado = custo + (custo * lucro);
+  useEffect(() => { fetchProdutos(); }, []);
 
-    const novoProduto = {
-      id: Date.now(), // Simula um ID gerado pelo banco
-      nome: dadosFormulario.nome,
-      material: 'A Definir', // Futuramente pode vir de um select no modal
-      cor: 'Padrão',
-      hexCor: '#cccccc',
-      preco: precoCalculado, 
-      dataFabricacao: dadosFormulario.dataFabricacao.split('-').reverse().join('/'), // Formata YYYY-MM-DD para DD/MM/YYYY
-      quantidade: 1 // Inicia com 1 no estoque
-    };
+  // Filtra produtos: Ativos e com quantidade > 0 para a visão principal
+  const produtosVisiveis = produtos.filter(p => {
+    if (mostrarEsgotados) return true; // Mostra tudo se o filtro estiver ativo
+    return p.ativo && p.quantidade > 0;
+  });
 
-    setProdutos([novoProduto, ...produtos]);
-    setIsModalOpen(false);
-    
-    // Futuramente: fetch POST para inserir no banco PHP
-    console.log("Novo produto salvo:", novoProduto);
+  const handleEdit = (prod) => {
+    setProdutoSelecionado(prod);
+    setIsEditModalOpen(true);
   };
 
-  useEffect(() => {
-    // Mock inicial de dados
-    setTimeout(() => {
-      setProdutos([
-        { id: 1, nome: 'Suporte de Headset Articulado', material: 'PLA', cor: 'Preto', hexCor: '#000000', preco: 45.90, quantidade: 12 },
-        { id: 2, nome: 'Vaso Decorativo Low Poly', material: 'PETG', cor: 'Branco', hexCor: '#FFFFFF', preco: 35.00, quantidade: 5 },
-      ]);
-      setLoading(false);
-    }, 400);
-  }, []);
+  const handleSalvarNovo = async (dados) => {
+    const token = localStorage.getItem('auth_token');
+    try {
+      const response = await fetch('http://localhost:8000/api/produtos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      if (response.ok) fetchProdutos();
+    } catch (err) { console.error(err); }
+  };
 
   return (
     <Layout>
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
-          <h2 className="text-2xl font-extrabold text-[#2A3240]">Estoque de Produtos Acabados</h2>
-          <p className="text-sm text-gray-600 mt-1">Dê baixa nas vendas ou cadastre novos itens impressos.</p>
+          <h2 className="text-2xl font-black text-[#2A3240] uppercase tracking-tighter">Estoque de Produtos</h2>
+          <p className="text-sm text-gray-500 font-medium">Itens prontos para venda imediata.</p>
         </div>
         
-        {/* Botão que abre o Modal */}
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-[#FF9B54] hover:bg-orange-500 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Novo Produto
-        </button>
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input 
+                type="checkbox" 
+                checked={mostrarEsgotados} 
+                onChange={(e) => setMostrarEsgotados(e.target.checked)}
+                className="w-4 h-4 text-[#FF9B54] border-gray-300 rounded focus:ring-[#FF9B54]"
+            />
+            <span className="text-xs font-bold text-gray-500 uppercase">Mostrar Esgotados / Inativos</span>
+          </label>
+
+          <button 
+            onClick={() => setIsModalOpen(true)} 
+            className="bg-[#2A3240] hover:bg-gray-800 text-white font-black py-3 px-8 rounded-xl shadow-lg uppercase text-xs tracking-widest transition-all"
+          >
+            + Novo Produto
+          </button>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-gray-500">Carregando estoque...</div>
-      ) : (
-        <TabelaEstoqueProdutos 
-          produtos={produtos} 
-          onIncrementarQuantidade={handleIncrementarQuantidade} 
-          onDecrementarQuantidade={handleDecrementarQuantidade}
-        />
-      )}
-
-      {/* Renderização do Modal */}
-      <ModalNovoProduto 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSalvar={handleSalvarProduto} 
+      <TabelaEstoqueProdutos 
+        produtos={produtosVisiveis} 
+        loading={loading} 
+        onRefresh={fetchProdutos} 
+        onEdit={handleEdit} 
       />
+
+      <ModalNovoProduto isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSalvar={handleSalvarNovo} />
+      <ModalEditarProduto isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} produto={produtoSelecionado} onSucesso={fetchProdutos} />
     </Layout>
   );
 }
