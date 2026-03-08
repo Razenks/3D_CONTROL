@@ -36,6 +36,7 @@ class ImpressaoController extends Controller
             'material_id' => 'required',
             'cliente_id' => 'nullable',
             'projeto_nome' => 'required|string',
+            'gcode_filename' => 'nullable|string',
             'peso_estimado' => 'required|numeric|min:0',
             'tempo_estimado' => 'nullable|string',
             'quantidade' => 'nullable|integer|min:1',
@@ -59,13 +60,13 @@ class ImpressaoController extends Controller
             }
 
             $query = 'INSERT INTO impressoes (
-                impressora_id, orcamento_id, material_id, cliente_id, 
+                impressora_id, orcamento_id, material_id, cliente_id, gcode_filename,
                 projeto_nome, peso_estimado, tempo_estimado, quantidade, 
                 quantidade_concluida, status, progresso, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
 
             DB::insert($query, [
-                $impressoraId, $orcamentoId, $materialId, $clienteId,
+                $impressoraId, $orcamentoId, $materialId, $clienteId, $validated['gcode_filename'] ?? null,
                 $validated['projeto_nome'], $pesoUnidade, $validated['tempo_estimado'] ?? '0h 0m',
                 $quantidade, 0, $validated['status'] ?? 'fila', 0
             ]);

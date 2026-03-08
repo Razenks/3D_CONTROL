@@ -16,6 +16,7 @@ class Impressao extends Model
         'orcamento_id',
         'material_id',
         'cliente_id',
+        'gcode_filename',
         'status',
         'progresso',
         'quantidade',

@@ -15,6 +15,7 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
     peso_estimado: '',
     tempo_estimado: '',
     projeto_nome: '',
+    gcode_filename: '',
     quantidade: 1
   });
 
@@ -23,6 +24,24 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
       fetchDados();
     }
   }, [isOpen]);
+
+  // Função para buscar os arquivos da impressora selecionada
+  const [arquivosImpressora, setArquivosImpressora] = useState([]);
+  useEffect(() => {
+    if (formData.impressora_id) {
+        fetchArquivos(formData.impressora_id);
+    }
+  }, [formData.impressora_id]);
+
+  const fetchArquivos = async (id) => {
+    const token = localStorage.getItem('auth_token');
+    try {
+        const res = await fetch(`http://localhost:8000/api/impressoras/${id}/files`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) setArquivosImpressora(await res.json());
+    } catch (err) { console.error(err); }
+  };
 
   const fetchDados = async () => {
     const token = localStorage.getItem('auth_token');
@@ -272,6 +291,21 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Arquivo G-code (Para Automação)</label>
+            <select
+              value={formData.gcode_filename}
+              onChange={(e) => setFormData({...formData, gcode_filename: e.target.value})}
+              className="w-full px-4 py-2 border border-orange-200 bg-orange-50 rounded-lg outline-none font-medium text-sm"
+            >
+              <option value="">-- Selecionar arquivo da impressora --</option>
+              {arquivosImpressora.map((f, idx) => (
+                <option key={idx} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+            <p className="text-[10px] text-gray-400 mt-1 italic">* Selecione o arquivo para que o sistema abata a quantidade automaticamente ao terminar.</p>
           </div>
 
           <div className="pt-4 flex gap-3">

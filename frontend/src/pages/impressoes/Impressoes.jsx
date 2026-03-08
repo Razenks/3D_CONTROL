@@ -3,33 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import TabelaImpressoes from './components/TabelaImpressoes';
 import ModalNovaImpressao from './components/ModalNovaImpressao';
+import LivePrintStatus from './components/LivePrintStatus';
 
 export default function Impressoes() {
   const navigate = useNavigate();
   const [fila, setFila] = useState([]);
   const [historico, setHistorico] = useState([]);
+  const [impressoras, setImpressoras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalNovaOpen, setIsModalNovaOpen] = useState(false);
 
-  const fetchImpressoes = async () => {
+  const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     
     try {
-      const response = await fetch('http://localhost:8000/api/impressoes', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
+      // Buscar impressões e impressoras em paralelo
+      const [respImp, respMaq] = await Promise.all([
+        fetch('http://localhost:8000/api/impressoes', {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        }),
+        fetch('http://localhost:8000/api/impressoras', {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        })
+      ]);
       
-      if (response.ok) {
-        const data = await response.json();
-        setFila(data.filter(i => i.status === 'fila' || i.status === 'imprimindo' || i.status === 'pausado'));
-        setHistorico(data.filter(i => i.status === 'concluido' || i.status === 'falha'));
+      if (respImp.ok && respMaq.ok) {
+        const dataImp = await respImp.json();
+        const dataMaq = await respMaq.json();
+        
+        setFila(dataImp.filter(i => i.status === 'fila' || i.status === 'imprimindo' || i.status === 'pausado'));
+        setHistorico(dataImp.filter(i => i.status === 'concluido' || i.status === 'falha'));
+        setImpressoras(dataMaq.filter(m => m.status_atual === 'online'));
       } else {
-        setError('Erro ao carregar impressões.');
+        setError('Erro ao carregar dados.');
       }
     } catch (err) {
       setError('Erro de conexão com o servidor.');
@@ -39,7 +47,7 @@ export default function Impressoes() {
   };
 
   useEffect(() => {
-    fetchImpressoes();
+    fetchData();
   }, []);
 
   return (
@@ -84,6 +92,13 @@ export default function Impressoes() {
         </div>
       )}
 
+      {/* MONITORAMENTO EM TEMPO REAL (Para cada impressora Online) */}
+      <div className="space-y-4">
+        {impressoras.map(maq => (
+            <LivePrintStatus key={maq.id} printerId={maq.id} printerName={maq.nome} />
+        ))}
+      </div>
+
       {loading ? (
         <div className="text-center py-10 text-gray-500">Sincronizando com as máquinas...</div>
       ) : (
@@ -92,14 +107,14 @@ export default function Impressoes() {
             titulo="Fila de Produção (Ativa)" 
             dados={fila} 
             isHistorico={false} 
-            onRefresh={fetchImpressoes}
+            onRefresh={fetchData}
           />
 
           <TabelaImpressoes 
             titulo="Histórico de Impressões" 
             dados={historico} 
             isHistorico={true} 
-            onRefresh={fetchImpressoes}
+            onRefresh={fetchData}
           />
         </>
       )}
@@ -107,8 +122,9 @@ export default function Impressoes() {
       <ModalNovaImpressao 
         isOpen={isModalNovaOpen} 
         onClose={() => setIsModalNovaOpen(false)} 
-        onSucesso={fetchImpressoes}
+        onSucesso={fetchData}
       />
     </Layout>
   );
 }
+

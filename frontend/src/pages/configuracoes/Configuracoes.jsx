@@ -29,6 +29,23 @@ export default function Configuracoes() {
     }
   };
 
+  const handleVerifyStatus = async (id) => {
+    const token = localStorage.getItem('auth_token');
+    try {
+      const response = await fetch(`http://localhost:8000/api/impressoras/${id}/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      const data = await response.json();
+      alert(data.message);
+      fetchImpressoras(); // Atualiza a lista para mostrar o novo status
+    } catch (err) {
+      alert('Erro ao verificar status da impressora.');
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Tem certeza que deseja excluir esta máquina?')) return;
 
@@ -82,6 +99,7 @@ export default function Configuracoes() {
             impressoras={impressoras} 
             loading={loading} 
             onDelete={handleDelete}
+            onVerify={handleVerifyStatus}
           />
         </section>
 

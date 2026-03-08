@@ -60,6 +60,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Impressoras e Impressões
     Route::get('impressoes/available-orcamentos', [ImpressaoController::class, 'getAvailableOrcamentos']);
+    Route::get('impressoras/{id}/status', [ImpressoraController::class, 'checkStatus']);
+    Route::get('impressoras/{id}/current-print', [ImpressoraController::class, 'getCurrentPrint']);
+    Route::get('impressoras/{id}/files', [ImpressoraController::class, 'getFiles']);
+    Route::get('impressoras/{id}/proxy-image', [ImpressoraController::class, 'proxyImage']);
+    Route::post('impressoras/{id}/start-print', [ImpressoraController::class, 'startPrint']);
     Route::apiResource('impressoras', ImpressoraController::class);
     Route::apiResource('impressoes', ImpressaoController::class);
     Route::patch('impressoes/{id}', [ImpressaoController::class, 'update']);
