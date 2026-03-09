@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
   const [formData, setFormData] = useState({
@@ -28,8 +29,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
     const token = localStorage.getItem('auth_token');
     try {
       const [resM, resC] = await Promise.all([
-        fetch('http://localhost:8000/api/marcas', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/cores', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${API_BASE_URL}/api/marcas`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/cores`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       if (resM.ok) setMarcas(await resM.json());
       if (resC.ok) setCores(await resC.json());
@@ -44,8 +45,6 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // Lógica para sincronizar Input de Número com Dropdown de Cor
     if (name === 'cor_codigo') {
         const corEncontrada = cores.find(c => c.codigo === value);
         setFormData(prev => ({ 
@@ -57,8 +56,6 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
         }));
         return;
     }
-
-    // Lógica para sincronizar Dropdown de Cor com Input de Número
     if (name === 'cor_id') {
         const corEncontrada = cores.find(c => c.id === parseInt(value));
         setFormData(prev => ({
@@ -70,7 +67,6 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
         }));
         return;
     }
-
     if (name === 'tipo' && (value === 'Resina Standard' || value === 'Resina ABS-Like')) {
         setFormData(prev => ({ ...prev, [name]: value, unidade: 'ml' }));
     } else if (name === 'tipo') {
@@ -85,7 +81,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
     if (!nome) return;
     const token = localStorage.getItem('auth_token');
     try {
-        const res = await fetch('http://localhost:8000/api/marcas', {
+        const res = await fetch(`${API_BASE_URL}/api/marcas`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ nome })
@@ -100,7 +96,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
     if (!codigo || !nome) return;
     const token = localStorage.getItem('auth_token');
     try {
-        const res = await fetch('http://localhost:8000/api/cores', {
+        const res = await fetch(`${API_BASE_URL}/api/cores`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ codigo, nome })
@@ -115,41 +111,31 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
         alert('Por favor, selecione uma marca e uma cor válida.');
         return;
     }
-    const payload = {
+    onSalvar({
         tipo: formData.tipo,
         marca_id: formData.marca_id,
         cor_id: formData.cor_id,
         custo_unidade: formData.custoKG,
         quantidade_restante: formData.quantidadeInicial,
         unidade: formData.unidade
-    };
-    onSalvar(payload);
+    });
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border-t-4 border-[#FF9B54] my-auto">
-        
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h3 className="text-lg font-bold text-[#2A3240]">Cadastrar Novo Insumo</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Material</label>
-              <select 
-                name="tipo" 
-                value={formData.tipo} 
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-              >
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Tipo</label>
+              <select name="tipo" value={formData.tipo} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
                 <option value="PLA">PLA</option>
                 <option value="PETG">PETG</option>
                 <option value="ABS">ABS</option>
@@ -161,13 +147,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Marca</label>
               <div className="flex gap-2">
-                <select
-                    name="marca_id"
-                    required
-                    value={formData.marca_id}
-                    onChange={handleChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-                >
+                <select name="marca_id" required value={formData.marca_id} onChange={handleChange} className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
                     <option value="">Selecione...</option>
                     {marcas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
                 </select>
@@ -175,80 +155,35 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
               </div>
             </div>
           </div>
-
-          <div className="space-y-4 border-t border-gray-100 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Código da Cor</label>
-                    <input
-                        type="text"
-                        name="cor_codigo"
-                        value={formData.cor_codigo}
-                        onChange={handleChange}
-                        placeholder="Ex: 1"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Selecionar Cor</label>
-                    <div className="flex gap-2">
-                        <select
-                            name="cor_id"
-                            required
-                            value={formData.cor_id}
-                            onChange={handleChange}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-                        >
-                            <option value="">Selecione...</option>
-                            {cores.map(c => <option key={c.id} value={c.id}>{c.codigo} - {c.nome}</option>)}
-                        </select>
-                        <button type="button" onClick={handleAddCor} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
-                    </div>
-                </div>
-            </div>
-            
-            {formData.cor_nome_exibicao && (
-                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-200">
-                    <div style={{ backgroundColor: formData.hexCor }} className="w-6 h-6 rounded-full border border-gray-300 shadow-inner"></div>
-                    <span className="text-xs font-black text-[#2A3240] uppercase tracking-wider">
-                        {formData.cor_nome_exibicao}
-                    </span>
-                </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Custo (R$ por KG/L)</label>
-              <input
-                type="number"
-                name="custoKG"
-                required
-                step="0.01"
-                value={formData.custoKG}
-                onChange={handleChange}
-                placeholder="Ex: 120.00"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-              />
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Código Cor</label>
+              <input type="text" name="cor_codigo" value={formData.cor_codigo} onChange={handleChange} placeholder="Ex: 1" className="w-full px-3 py-2 border rounded-lg outline-none font-bold text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Selecionar Cor</label>
+              <div className="flex gap-2">
+                <select name="cor_id" required value={formData.cor_id} onChange={handleChange} className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
+                    <option value="">Selecione...</option>
+                    {cores.map(c => <option key={c.id} value={c.id}>{c.codigo} - {c.nome}</option>)}
+                </select>
+                <button type="button" onClick={handleAddCor} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Custo (R$ /KG)</label>
+              <input type="number" name="custoKG" required step="0.01" value={formData.custoKG} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg outline-none font-bold text-sm" />
             </div>
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Qtd. Inicial ({formData.unidade})</label>
-              <input
-                type="number"
-                name="quantidadeInicial"
-                required
-                value={formData.quantidadeInicial}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold"
-              />
+              <input type="number" name="quantidadeInicial" required value={formData.quantidadeInicial} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg outline-none font-bold text-sm" />
             </div>
           </div>
-
           <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
-            <button type="button" onClick={onClose} className="px-4 py-3 text-xs font-black text-gray-500 uppercase tracking-widest hover:text-red-500 transition-colors order-2 sm:order-1">Cancelar</button>
-            <button type="submit" className="px-8 py-4 text-xs font-black text-white bg-[#2A3240] hover:bg-gray-800 rounded-xl transition-all shadow-lg uppercase tracking-widest order-1 sm:order-2">
-              Confirmar Cadastro
-            </button>
+            <button type="button" onClick={onClose} className="px-4 py-3 text-xs font-black text-gray-500 uppercase tracking-widest order-2 sm:order-1">Cancelar</button>
+            <button type="submit" className="px-8 py-4 text-xs font-black text-white bg-[#2A3240] hover:bg-gray-800 rounded-xl transition-all shadow-lg uppercase tracking-widest order-1 sm:order-2">Confirmar Cadastro</button>
           </div>
         </form>
       </div>

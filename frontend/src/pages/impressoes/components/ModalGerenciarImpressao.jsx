@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalGerenciarImpressao({ isOpen, onClose, impressao, onSucesso }) {
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ export default function ModalGerenciarImpressao({ isOpen, onClose, impressao, on
     try {
       const body = { status: novoStatus, ...extraData };
       
-      const response = await fetch(`http://localhost:8000/api/impressoes/${impressao.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoes/${impressao.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ export default function ModalGerenciarImpressao({ isOpen, onClose, impressao, on
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-        const res = await fetch(`http://localhost:8000/api/impressoes/${impressao.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/impressoes/${impressao.id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

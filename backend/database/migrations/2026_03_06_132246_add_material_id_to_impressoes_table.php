@@ -3,18 +3,22 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    public $withinTransaction = false;
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE impressoes ADD COLUMN IF NOT EXISTS material_id BIGINT REFERENCES materials(id) ON DELETE SET NULL');
+        Schema::table('impressoes', function (Blueprint $table) {
+            if (!Schema::hasColumn('impressoes', 'material_id')) {
+                $table->foreignId('material_id')
+                    ->nullable()
+                    ->constrained('materials')
+                    ->onDelete('set null');
+            }
+        });
     }
 
     /**
@@ -23,7 +27,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('impressoes', function (Blueprint $table) {
-            $table->dropColumn('material_id');
+            if (Schema::hasColumn('impressoes', 'material_id')) {
+                $table->dropForeign(['material_id']);
+                $table->dropColumn('material_id');
+            }
         });
     }
 };

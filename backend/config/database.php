@@ -98,9 +98,9 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'require', // <--- Importante para NeonDB
+            'sslmode' => 'require',
             'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true, // Necessário para NeonDB com pooling para evitar 'cached plan' error
+                PDO::ATTR_EMULATE_PREPARES => true,
             ],
         ],
 

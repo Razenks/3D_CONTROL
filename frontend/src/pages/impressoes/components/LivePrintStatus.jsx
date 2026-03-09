@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModalArquivosImpressora from './ModalArquivosImpressora';
+import API_BASE_URL from '../../../config';
 
 export default function LivePrintStatus({ printerId, printerName }) {
   const [data, setData] = useState(null);
@@ -9,7 +10,7 @@ export default function LivePrintStatus({ printerId, printerName }) {
   const fetchStatus = async () => {
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/impressoras/${printerId}/current-print`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras/${printerId}/current-print`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'

@@ -3,6 +3,7 @@ import Layout from '../../components/layout/Layout';
 import TabelaEstoqueProdutos from './components/TabelaEstoqueProdutos';
 import ModalNovoProduto from './components/ModalNovoProduto';
 import ModalEditarProduto from './components/ModalEditarProduto';
+import API_BASE_URL from '../../config';
 
 export default function EstoqueProdutos() {
   const [produtos, setProdutos] = useState([]);
@@ -16,7 +17,7 @@ export default function EstoqueProdutos() {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/produtos', {
+      const response = await fetch(`${API_BASE_URL}/api/produtos`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
       });
       if (response.ok) {
@@ -43,7 +44,7 @@ export default function EstoqueProdutos() {
   const handleSalvarNovo = async (dados) => {
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/produtos', {
+      const response = await fetch(`${API_BASE_URL}/api/produtos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
         body: JSON.stringify(dados)

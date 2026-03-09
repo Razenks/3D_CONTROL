@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalNovoCliente({ isOpen, onClose, onSucesso }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
-    tipo: 'CPF',
-    cpf: '',
-    cnpj: '',
-    email: '',
     telefone: '',
-    endereco: '',
-    endereco_entrega: ''
+    email: '',
+    tipo: 'CPF', // Valor padrão esperado pelo backend
+    cnpj: '',
+    cpf: ''
   });
 
   const handleSubmit = async (e) => {
@@ -18,32 +17,27 @@ export default function ModalNovoCliente({ isOpen, onClose, onSucesso }) {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
 
-    // Limpar o campo oposto ao tipo selecionado
-    const dataToSend = { ...formData };
-    if (formData.tipo === 'CPF') dataToSend.cnpj = '';
-    else dataToSend.cpf = '';
-
     try {
-      const response = await fetch('http://localhost:8000/api/clientes', {
+      const response = await fetch(`${API_BASE_URL}/api/clientes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
-        body: JSON.stringify(dataToSend)
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
         onSucesso();
         onClose();
-        setFormData({ nome: '', tipo: 'CPF', cpf: '', cnpj: '', email: '', telefone: '', endereco: '', endereco_entrega: '' });
+        setFormData({ nome: '', telefone: '', email: '', tipo: 'CPF', cnpj: '', cpf: '' });
       } else {
-        const err = await response.json();
-        alert(err.message || 'Erro ao cadastrar cliente. Verifique os dados.');
+        const errorData = await response.json();
+        alert('Erro ao cadastrar: ' + (errorData.message || 'Verifique se os dados estão corretos.'));
       }
-    } catch (err) {
-      alert('Erro de conexão.');
+    } catch (error) {
+      console.error('Erro:', error);
     } finally {
       setLoading(false);
     }
@@ -52,123 +46,94 @@ export default function ModalNovoCliente({ isOpen, onClose, onSucesso }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden my-auto border-t-8 border-[#FF9B54]">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h3 className="text-xl font-black text-[#2A3240] uppercase tracking-tighter">Novo Cliente RB Printings</h3>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border-t-4 border-[#FF9B54] animate-in zoom-in duration-200">
+        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 className="text-lg font-bold text-[#2A3240]">Cadastrar Novo Cliente</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-1">
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Pessoa</label>
-              <div className="flex gap-2">
-                <button
-                    type="button"
-                    onClick={() => setFormData({...formData, tipo: 'CPF'})}
-                    className={`flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2 ${formData.tipo === 'CPF' ? 'bg-[#2A3240] text-white border-[#2A3240]' : 'bg-white text-gray-400 border-gray-100'}`}
-                >Pessoa Física</button>
-                <button
-                    type="button"
-                    onClick={() => setFormData({...formData, tipo: 'CNPJ'})}
-                    className={`flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2 ${formData.tipo === 'CNPJ' ? 'bg-[#2A3240] text-white border-[#2A3240]' : 'bg-white text-gray-400 border-gray-100'}`}
-                >Pessoa Jurídica</button>
-              </div>
-            </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="flex gap-4 mb-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="tipo" value="CPF" checked={formData.tipo === 'CPF'} onChange={e => setFormData({...formData, tipo: e.target.value})} className="text-[#FF9B54] focus:ring-[#FF9B54]" />
+                <span className="text-sm font-bold text-gray-600 uppercase">Pessoa Física</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="tipo" value="CNPJ" checked={formData.tipo === 'CNPJ'} onChange={e => setFormData({...formData, tipo: e.target.value})} className="text-[#FF9B54] focus:ring-[#FF9B54]" />
+                <span className="text-sm font-bold text-gray-600 uppercase">Pessoa Jurídica</span>
+            </label>
+          </div>
 
-            <div className="md:col-span-1">
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nome Completo / Razão Social</label>
-              <input
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Nome Completo / Razão Social</label>
+            <input
+              type="text"
+              required
+              value={formData.nome}
+              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              placeholder="Ex: João Silva"
+            />
+          </div>
+
+          {formData.tipo === 'CPF' ? (
+            <div className="animate-in slide-in-from-top duration-300">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">CPF</label>
+                <input
+                type="text"
+                value={formData.cpf}
+                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+                placeholder="000.000.000-00"
+                />
+            </div>
+          ) : (
+            <div className="animate-in slide-in-from-top duration-300">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">CNPJ</label>
+                <input
+                type="text"
                 required
-                type="text"
-                value={formData.nome}
-                onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                placeholder={formData.tipo === 'CPF' ? "Ex: João da Silva" : "Ex: Empresa Ltda"}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
-              />
+                value={formData.cnpj}
+                onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+                placeholder="00.000.000/0000-00"
+                />
             </div>
+          )}
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{formData.tipo === 'CPF' ? 'CPF' : 'CNPJ'}</label>
-              {formData.tipo === 'CPF' ? (
-                  <input
-                    type="text"
-                    value={formData.cpf}
-                    onChange={(e) => setFormData({...formData, cpf: e.target.value})}
-                    placeholder="000.000.000-00"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
-                  />
-              ) : (
-                  <input
-                    type="text"
-                    value={formData.cnpj}
-                    onChange={(e) => setFormData({...formData, cnpj: e.target.value})}
-                    placeholder="00.000.000/0000-00"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
-                  />
-              )}
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Telefone / WhatsApp</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">WhatsApp</label>
               <input
                 type="text"
+                required
                 value={formData.telefone}
-                onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
                 placeholder="(00) 00000-0000"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
               />
             </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">E-mail</label>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">E-mail</label>
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="cliente@exemplo.com"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+                placeholder="cliente@email.com"
               />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Endereço Principal</label>
-              <textarea
-                value={formData.endereco}
-                onChange={(e) => setFormData({...formData, endereco: e.target.value})}
-                placeholder="Rua, Número, Bairro, Cidade..."
-                rows="3"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240] text-sm"
-              ></textarea>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Endereço de Entrega (Se diferente)</label>
-              <textarea
-                value={formData.endereco_entrega}
-                onChange={(e) => setFormData({...formData, endereco_entrega: e.target.value})}
-                placeholder="Rua, Número, Bairro, Cidade..."
-                rows="3"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240] text-sm"
-              ></textarea>
             </div>
           </div>
 
-          <div className="pt-6 flex gap-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-6 py-4 bg-gray-100 text-gray-500 font-black rounded-xl hover:bg-gray-200 transition-all uppercase text-xs tracking-widest"
-            >
-              Cancelar
-            </button>
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-black text-gray-500 uppercase tracking-widest hover:text-red-500 transition-colors order-2 sm:order-1">Cancelar</button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-6 py-4 bg-[#2A3240] text-white font-black rounded-xl hover:bg-gray-800 transition-all shadow-xl uppercase text-xs tracking-widest disabled:opacity-50"
+              className="px-8 py-3 bg-[#2A3240] hover:bg-gray-800 text-white font-black rounded-xl transition-all shadow-xl uppercase text-xs tracking-widest disabled:opacity-50"
             >
               {loading ? 'Salvando...' : 'Cadastrar Cliente'}
             </button>

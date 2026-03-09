@@ -3,6 +3,7 @@ import Layout from '../../components/layout/Layout';
 import TabelaMateriais from './components/TabelaMateriais';
 import ModalNovoMaterial from './components/ModalNovoMaterial';
 import ModalEditarMaterial from './components/ModalEditarMaterial';
+import API_BASE_URL from '../../config';
 
 export default function EstoqueMateriais() {
   const [materiais, setMateriais] = useState([]);
@@ -15,7 +16,7 @@ export default function EstoqueMateriais() {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/materiais', {
+      const response = await fetch(`${API_BASE_URL}/api/materiais`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) setMateriais(await response.json());
@@ -28,7 +29,7 @@ export default function EstoqueMateriais() {
   const handleSalvarNovo = async (dados) => {
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/materiais', {
+      const response = await fetch(`${API_BASE_URL}/api/materiais`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(dados)

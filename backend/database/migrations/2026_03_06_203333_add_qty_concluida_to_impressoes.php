@@ -3,21 +3,30 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    public $withinTransaction = false;
-
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        DB::statement('ALTER TABLE impressoes ADD COLUMN IF NOT EXISTS quantidade_concluida INTEGER DEFAULT 0');
+        Schema::table('impressoes', function (Blueprint $table) {
+            if (!Schema::hasColumn('impressoes', 'quantidade_concluida')) {
+                $table->integer('quantidade_concluida')->default(0);
+            }
+        });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('impressoes', function (Blueprint $table) {
-            $table->dropColumn('quantidade_concluida');
+            if (Schema::hasColumn('impressoes', 'quantidade_concluida')) {
+                $table->dropColumn('quantidade_concluida');
+            }
         });
     }
 };

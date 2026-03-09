@@ -4,6 +4,7 @@ import Layout from '../../components/layout/Layout';
 import TabelaImpressoes from './components/TabelaImpressoes';
 import ModalNovaImpressao from './components/ModalNovaImpressao';
 import LivePrintStatus from './components/LivePrintStatus';
+import API_BASE_URL from '../../config';
 
 export default function Impressoes() {
   const navigate = useNavigate();
@@ -21,10 +22,10 @@ export default function Impressoes() {
     try {
       // Buscar impressões e impressoras em paralelo
       const [respImp, respMaq] = await Promise.all([
-        fetch('http://localhost:8000/api/impressoes', {
+        fetch(`${API_BASE_URL}/api/impressoes`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         }),
-        fetch('http://localhost:8000/api/impressoras', {
+        fetch(`${API_BASE_URL}/api/impressoras`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         })
       ]);

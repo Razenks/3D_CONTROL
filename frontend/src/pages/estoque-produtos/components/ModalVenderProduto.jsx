@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso }) {
   const [clientes, setClientes] = useState([]);
@@ -15,7 +16,7 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
   const fetchClientes = async () => {
     const token = localStorage.getItem('auth_token');
     try {
-      const res = await fetch('http://localhost:8000/api/clientes?ativos_only=1', {
+      const res = await fetch(`${API_BASE_URL}/api/clientes?ativos_only=1`, {
         headers: { 
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
@@ -37,7 +38,6 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
     try {
       const valorVenda = (produto.custo_material * (1 + (produto.margem_lucro / 100)));
       
-      // 1. Criar um orçamento aprovado e finalizado como "Venda Direta"
       const payload = {
         cliente_id: clienteId || null,
         cliente: clientes.find(c => c.id === parseInt(clienteId))?.nome || 'Consumidor Final',
@@ -50,19 +50,18 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
         detalhes_calculo: { item_estoque_id: produto.id, venda_direta: true }
       };
 
-      const resVenda = await fetch('http://localhost:8000/api/orcamentos', {
+      const resVenda = await fetch(`${API_BASE_URL}/api/orcamentos`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json', 
             'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json' // CRITICAL: Evita o redirecionamento CORS
+            'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
       });
 
       if (resVenda.ok) {
-        // 2. Baixar o estoque do produto
-        await fetch(`http://localhost:8000/api/produtos/${produto.id}/stock`, {
+        await fetch(`${API_BASE_URL}/api/produtos/${produto.id}/stock`, {
             method: 'PATCH',
             headers: { 
                 'Content-Type': 'application/json', 
@@ -93,7 +92,9 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border-t-8 border-[#FF9B54]">
         <div className="p-6 bg-gray-50 border-b flex justify-between items-center">
           <h3 className="text-xl font-black text-[#2A3240] uppercase tracking-tighter">Realizar Venda</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+          <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
 
         <form onSubmit={handleVenda} className="p-8 space-y-6">
@@ -137,7 +138,7 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
             disabled={loading}
             className="w-full bg-[#2A3240] hover:bg-gray-800 text-white font-black py-4 rounded-xl shadow-xl transition-all uppercase text-xs tracking-widest"
           >
-            {loading ? 'Processando...' : 'Confirmar Venda e Baixar Estoque'}
+            {loading ? 'Processando...' : 'Confirmar Venda'}
           </button>
         </form>
       </div>

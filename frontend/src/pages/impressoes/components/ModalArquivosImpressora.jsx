@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalArquivosImpressora({ isOpen, onClose, printerId, printerName }) {
   const [files, setFiles] = useState([]);
@@ -8,7 +9,7 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/impressoras/${printerId}/files`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras/${printerId}/files`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -19,7 +20,7 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
         // Construímos a URL para o nosso próprio backend servir a imagem
         const filesWithUrls = data.map(f => ({
             ...f,
-            thumbUrl: f.thumbnail ? `http://localhost:8000/api/impressoras/${printerId}/proxy-image?path=${encodeURIComponent(f.thumbnail)}` : null
+            thumbUrl: f.thumbnail ? `${API_BASE_URL}/api/impressoras/${printerId}/proxy-image?path=${encodeURIComponent(f.thumbnail)}` : null
         }));
         setFiles(filesWithUrls);
       }
@@ -35,7 +36,7 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
 
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/impressoras/${printerId}/start-print`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras/${printerId}/start-print`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

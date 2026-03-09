@@ -3,6 +3,7 @@ import Layout from '../../components/layout/Layout';
 import StatCard from './components/StatCard';
 import MaterialAlerts from './components/MaterialAlerts';
 import OrdersQueue from './components/OrdersQueue';
+import API_BASE_URL from '../../config';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +17,7 @@ export default function Home() {
     const token = localStorage.getItem('auth_token');
     
     try {
-      const response = await fetch('http://localhost:8000/api/dashboard', {
+      const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'

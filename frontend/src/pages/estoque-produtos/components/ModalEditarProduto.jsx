@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalEditarProduto({ isOpen, onClose, produto, onSucesso }) {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ export default function ModalEditarProduto({ isOpen, onClose, produto, onSucesso
     e.preventDefault();
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/produtos/${produto.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/produtos/${produto.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(formData)

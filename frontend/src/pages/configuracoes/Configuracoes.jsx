@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import TabelaImpressoras from './components/TabelaImpressoras';
 import ModalNovaImpressora from './components/ModalNovaImpressora';
+import API_BASE_URL from '../../config';
 
 export default function Configuracoes() {
   const [impressoras, setImpressoras] = useState([]);
@@ -12,7 +13,7 @@ export default function Configuracoes() {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/impressoras', {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -32,7 +33,7 @@ export default function Configuracoes() {
   const handleVerifyStatus = async (id) => {
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/impressoras/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras/${id}/status`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -51,7 +52,7 @@ export default function Configuracoes() {
 
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/impressoras/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/impressoras/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

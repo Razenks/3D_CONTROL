@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
   const [orcamentos, setOrcamentos] = useState([]);
@@ -25,7 +26,6 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
     }
   }, [isOpen]);
 
-  // Função para buscar os arquivos da impressora selecionada
   const [arquivosImpressora, setArquivosImpressora] = useState([]);
   useEffect(() => {
     if (formData.impressora_id) {
@@ -36,7 +36,7 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
   const fetchArquivos = async (id) => {
     const token = localStorage.getItem('auth_token');
     try {
-        const res = await fetch(`http://localhost:8000/api/impressoras/${id}/files`, {
+        const res = await fetch(`${API_BASE_URL}/api/impressoras/${id}/files`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setArquivosImpressora(await res.json());
@@ -47,11 +47,11 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
     const token = localStorage.getItem('auth_token');
     try {
       const [resOrc, resImp, resMat, resCat, resCli] = await Promise.all([
-        fetch('http://localhost:8000/api/impressoes/available-orcamentos', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/impressoras', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/materiais?ativos_only=1', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/produtos-catalogo', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/clientes', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${API_BASE_URL}/api/impressoes/available-orcamentos`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/impressoras`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/materiais?ativos_only=1`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/produtos-catalogo`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/clientes`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       if (resOrc.ok) setOrcamentos(await resOrc.json());
@@ -88,25 +88,19 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
   const formatarTempo = (tempo) => {
     if (!tempo) return '0h 0m';
     if (typeof tempo !== 'string') return `${tempo}h 0m`;
-    
-    // Se já tiver h ou m, assume que está no formato correto
     if (tempo.includes('h') || tempo.includes('m')) return tempo;
-    
-    // Se for apenas um número (ex: "1.5"), converte para h/m
     const num = parseFloat(tempo);
     if (!isNaN(num)) {
         const h = Math.floor(num);
         const m = Math.round((num - h) * 60);
         return `${h}h ${m}m`;
     }
-    
     return tempo;
   };
 
   const handleCatalogoChange = (e) => {
     const id = e.target.value;
     if (!id) return;
-
     const prod = catalogo.find(p => p.id === parseInt(id));
     if (prod) {
         setFormData({
@@ -126,26 +120,22 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
     const token = localStorage.getItem('auth_token');
 
     try {
-      const response = await fetch('http://localhost:8000/api/impressoes', {
+      const response = await fetch(`${API_BASE_URL}/api/impressoes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-            ...formData,
-            status: 'fila'
-        })
+        body: JSON.stringify({ ...formData, status: 'fila' })
       });
-
-      const data = await response.json();
 
       if (response.ok) {
         onSucesso();
         onClose();
         setFormData({ orcamento_id: '', material_id: '', impressora_id: '', peso_estimado: '', tempo_estimado: '', projeto_nome: '', cliente_id: '', quantidade: 1 });
       } else {
+        const data = await response.json();
         alert(`ERRO: ${data.message}`);
       }
     } catch (err) {
@@ -171,99 +161,52 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Puxar do Catálogo</label>
-                <select
-                onChange={handleCatalogoChange}
-                className="w-full px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg outline-none text-sm"
-                >
+                <select onChange={handleCatalogoChange} className="w-full px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg outline-none text-sm">
                 <option value="">-- Selecionar Modelo --</option>
-                {catalogo.map(p => (
-                    <option key={p.id} value={p.id}>{p.nome}</option>
-                ))}
+                {catalogo.map(p => (<option key={p.id} value={p.id}>{p.nome}</option>))}
                 </select>
             </div>
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vincular Orçamento</label>
-                <select
-                value={formData.orcamento_id}
-                onChange={handleOrcamentoChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none text-sm"
-                >
+                <select value={formData.orcamento_id} onChange={handleOrcamentoChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none text-sm">
                 <option value="">-- Avulso --</option>
-                {orcamentos.map(o => (
-                    <option key={o.id} value={o.id}>{o.projeto}</option>
-                ))}
+                {orcamentos.map(o => (<option key={o.id} value={o.id}>{o.projeto}</option>))}
                 </select>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Nome do Projeto / Peça</label>
-            <input
-              type="text"
-              required
-              placeholder="Ex: Suporte Articulado"
-              value={formData.projeto_nome}
-              onChange={(e) => setFormData({...formData, projeto_nome: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none"
-            />
+            <input type="text" required placeholder="Ex: Suporte Articulado" value={formData.projeto_nome} onChange={(e) => setFormData({...formData, projeto_nome: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Cliente</label>
-                <select
-                value={formData.cliente_id}
-                onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
-                >
+                <select value={formData.cliente_id} onChange={(e) => setFormData({...formData, cliente_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none">
                 <option value="">Selecione o cliente</option>
-                {clientes.map(c => (
-                    <option key={c.id} value={c.id}>{c.nome}</option>
-                ))}
+                {clientes.map(c => (<option key={c.id} value={c.id}>{c.nome}</option>))}
                 </select>
             </div>
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Quantidade</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={formData.quantidade}
-                  onChange={(e) => setFormData({...formData, quantidade: e.target.value})}
-                  className="w-full px-4 py-2 border border-orange-200 bg-orange-50 font-bold rounded-lg outline-none"
-                />
+                <input type="number" required min="1" value={formData.quantidade} onChange={(e) => setFormData({...formData, quantidade: e.target.value})} className="w-full px-4 py-2 border border-orange-200 bg-orange-50 font-bold rounded-lg outline-none" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Impressora</label>
-                <select
-                required
-                value={formData.impressora_id}
-                onChange={(e) => setFormData({...formData, impressora_id: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
-                >
+                <select required value={formData.impressora_id} onChange={(e) => setFormData({...formData, impressora_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none">
                 <option value="">Selecione</option>
-                {impressoras.map(i => (
-                    <option key={i.id} value={i.id}>{i.nome}</option>
-                ))}
+                {impressoras.map(i => (<option key={i.id} value={i.id}>{i.nome}</option>))}
                 </select>
             </div>
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Filamento</label>
-                <select
-                required
-                value={formData.material_id}
-                onChange={(e) => setFormData({...formData, material_id: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none font-medium text-sm"
-                >
+                <select required value={formData.material_id} onChange={(e) => setFormData({...formData, material_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none font-medium text-sm">
                 <option value="">Selecione o material</option>
-                {materiais.map(m => (
-                    <option key={m.id} value={m.id} disabled={m.quantidade_restante <= 0}>
-                        {m.marca?.nome} {m.tipo} - {m.cor?.nome} ({m.quantidade_restante}{m.unidade})
-                    </option>
-                ))}
+                {materiais.map(m => (<option key={m.id} value={m.id} disabled={m.quantidade_restante <= 0}>{m.marca?.nome} {m.tipo} - {m.cor?.nome} ({m.quantidade_restante}{m.unidade})</option>))}
                 </select>
             </div>
           </div>
@@ -271,41 +214,20 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Peso Unidade (g)</label>
-              <input
-                type="number"
-                required
-                min="0.1"
-                step="0.1"
-                value={formData.peso_estimado}
-                onChange={(e) => setFormData({...formData, peso_estimado: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
-              />
+              <input type="number" required min="0.1" step="0.1" value={formData.peso_estimado} onChange={(e) => setFormData({...formData, peso_estimado: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Tempo Unidade</label>
-              <input
-                type="text"
-                placeholder="Ex: 1h 30m"
-                value={formData.tempo_estimado}
-                onChange={(e) => setFormData({...formData, tempo_estimado: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
-              />
+              <input type="text" placeholder="Ex: 1h 30m" value={formData.tempo_estimado} onChange={(e) => setFormData({...formData, tempo_estimado: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Arquivo G-code (Para Automação)</label>
-            <select
-              value={formData.gcode_filename}
-              onChange={(e) => setFormData({...formData, gcode_filename: e.target.value})}
-              className="w-full px-4 py-2 border border-orange-200 bg-orange-50 rounded-lg outline-none font-medium text-sm"
-            >
+            <select value={formData.gcode_filename} onChange={(e) => setFormData({...formData, gcode_filename: e.target.value})} className="w-full px-4 py-2 border border-orange-200 bg-orange-50 rounded-lg outline-none font-medium text-sm">
               <option value="">-- Selecionar arquivo da impressora --</option>
-              {arquivosImpressora.map((f, idx) => (
-                <option key={idx} value={f.name}>{f.name}</option>
-              ))}
+              {arquivosImpressora.map((f, idx) => (<option key={idx} value={f.name}>{f.name}</option>))}
             </select>
-            <p className="text-[10px] text-gray-400 mt-1 italic">* Selecione o arquivo para que o sistema abata a quantidade automaticamente ao terminar.</p>
           </div>
 
           <div className="pt-4 flex gap-3">

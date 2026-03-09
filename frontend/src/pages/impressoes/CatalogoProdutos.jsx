@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
+import API_BASE_URL from '../../config';
 
 export default function CatalogoProdutos() {
   const [produtos, setProdutos] = useState([]);
@@ -10,7 +11,7 @@ export default function CatalogoProdutos() {
   const fetchProdutos = async () => {
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/produtos-catalogo', {
+      const response = await fetch(`${API_BASE_URL}/api/produtos-catalogo`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) setProdutos(await response.json());
@@ -27,7 +28,7 @@ export default function CatalogoProdutos() {
     e.preventDefault();
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/produtos-catalogo', {
+      const response = await fetch(`${API_BASE_URL}/api/produtos-catalogo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(formData)
@@ -44,7 +45,7 @@ export default function CatalogoProdutos() {
     if (!confirm('Excluir este modelo?')) return;
     const token = localStorage.getItem('auth_token');
     try {
-      await fetch(`http://localhost:8000/api/produtos-catalogo/${id}`, {
+      await fetch(`${API_BASE_URL}/api/produtos-catalogo/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

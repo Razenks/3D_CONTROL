@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalEditarCliente({ isOpen, onClose, cliente, onSucesso }) {
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ export default function ModalEditarCliente({ isOpen, onClose, cliente, onSucesso
     else dataToSend.cpf = '';
 
     try {
-      const response = await fetch(`http://localhost:8000/api/clientes/${cliente.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/clientes/${cliente.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

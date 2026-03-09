@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import ModalNovoCliente from './components/ModalNovoCliente';
 import ModalEditarCliente from './components/ModalEditarCliente';
+import API_BASE_URL from '../../config';
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -15,7 +16,7 @@ export default function Clientes() {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch('http://localhost:8000/api/clientes', {
+      const response = await fetch(`${API_BASE_URL}/api/clientes`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -40,7 +41,7 @@ export default function Clientes() {
   const handleToggleAtivo = async (cliente) => {
     const token = localStorage.getItem('auth_token');
     try {
-        const response = await fetch(`http://localhost:8000/api/clientes/${cliente.id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/clientes/${cliente.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ export default function Clientes() {
     
     const token = localStorage.getItem('auth_token');
     try {
-      const response = await fetch(`http://localhost:8000/api/clientes/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/clientes/${id}`, {
         method: 'DELETE',
         headers: { 
             'Authorization': `Bearer ${token}`,

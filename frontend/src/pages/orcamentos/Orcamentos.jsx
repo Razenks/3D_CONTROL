@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import TabelaOrcamentos from './components/TabelaOrcamentos';
+import API_BASE_URL from '../../config';
 
 export default function Orcamentos() {
   const [orcamentos, setOrcamentos] = useState([]);
@@ -11,7 +12,7 @@ export default function Orcamentos() {
     const token = localStorage.getItem('auth_token');
     
     try {
-      const response = await fetch('http://localhost:8000/api/orcamentos', {
+      const response = await fetch(`${API_BASE_URL}/api/orcamentos`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'

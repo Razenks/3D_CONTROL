@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../../../config';
 
 export default function ModalAnalisarOrcamento({ isOpen, onClose, orcamento, onSucesso }) {
   const [loading, setLoading] = useState(false);
@@ -20,8 +21,8 @@ export default function ModalAnalisarOrcamento({ isOpen, onClose, orcamento, onS
     const token = localStorage.getItem('auth_token');
     
     try {
-      const response = await fetch(`http://localhost:8000/api/orcamentos/${orcamento.id}`, {
-        method: 'PUT', // Alterado para PUT para coincidir com o controller se necessário, ou manter PATCH se rotas aceitarem
+      const response = await fetch(`${API_BASE_URL}/api/orcamentos/${orcamento.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -67,10 +68,6 @@ export default function ModalAnalisarOrcamento({ isOpen, onClose, orcamento, onS
             <p className="text-[#FF9B54] font-extrabold text-2xl mt-2">R$ {parseFloat(orcamento.valor_total).toFixed(2)}</p>
           </div>
 
-          <p className="text-gray-600 text-sm mb-6">
-            Deseja aprovar este orçamento? Ao aprovar, ele estará disponível para ser enviado à fila de impressão.
-          </p>
-
           {exibirCampoRejeicao && (
             <div className="mb-6 animate-in slide-in-from-top duration-300">
                 <label className="block text-xs font-black text-red-500 uppercase tracking-widest mb-2">Motivo da Rejeição</label>
@@ -78,8 +75,8 @@ export default function ModalAnalisarOrcamento({ isOpen, onClose, orcamento, onS
                     autoFocus
                     value={motivoRejeicao}
                     onChange={(e) => setMotivoRejeicao(e.target.value)}
-                    placeholder="Ex: Valor muito alto, prazo incompatível..."
-                    className="w-full px-4 py-3 bg-red-50 border border-red-100 rounded-xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-[#2A3240] text-sm"
+                    placeholder="Ex: Valor muito alto..."
+                    className="w-full px-4 py-3 bg-red-50 border border-red-100 rounded-xl outline-none font-bold text-[#2A3240] text-sm"
                     rows="3"
                 ></textarea>
             </div>
@@ -90,36 +87,17 @@ export default function ModalAnalisarOrcamento({ isOpen, onClose, orcamento, onS
                 <button
                     disabled={loading}
                     onClick={() => handleStatusChange('Aprovado')}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 uppercase text-sm"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    {loading ? 'Processando...' : 'Aprovar Orçamento'}
-                </button>
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 uppercase text-sm"
+                >Aprovar Orçamento</button>
             )}
 
             <button
               disabled={loading}
               onClick={() => handleStatusChange('Rejeitado')}
-              className={`w-full ${exibirCampoRejeicao ? 'bg-red-600' : 'bg-red-500'} hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 uppercase text-sm`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-              {loading ? 'Processando...' : exibirCampoRejeicao ? 'Confirmar Rejeição' : 'Rejeitar Orçamento'}
-            </button>
+              className={`w-full ${exibirCampoRejeicao ? 'bg-red-600' : 'bg-red-500'} hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 uppercase text-sm`}
+            >{exibirCampoRejeicao ? 'Confirmar Rejeição' : 'Rejeitar Orçamento'}</button>
 
-            <button
-              onClick={() => {
-                  if (exibirCampoRejeicao) {
-                      setExibirCampoRejeicao(false);
-                  } else {
-                      onClose();
-                  }
-              }}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 rounded-lg transition-colors uppercase text-sm"
-            >
+            <button onClick={() => exibirCampoRejeicao ? setExibirCampoRejeicao(false) : onClose()} className="w-full bg-gray-100 py-3 rounded-lg font-bold uppercase text-sm">
               {exibirCampoRejeicao ? 'Voltar' : 'Cancelar'}
             </button>
           </div>

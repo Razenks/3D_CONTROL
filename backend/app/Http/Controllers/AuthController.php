@@ -17,16 +17,18 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // O campo recebido do frontend ainda pode se chamar 'email', mas vamos usá-lo para buscar o 'name'
         $request->validate([
             'email' => 'required|string',
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        // Busca o usuário apenas pelo NOME (username)
+        $user = User::where('name', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Credenciais inválidas. Verifique seu e-mail e senha.',
+                'message' => 'Credenciais inválidas. Verifique seu usuário e senha.',
             ], 401);
         }
 
