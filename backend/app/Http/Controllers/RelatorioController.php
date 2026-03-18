@@ -16,7 +16,12 @@ class RelatorioController extends Controller
     {
         $periodo = $request->query('periodo', 30);
         $tipo = $request->query('tipo', 'geral'); // geral, material, vendas, orcamentos
-        $startDate = Carbon::now()->subDays($periodo);
+        
+        if ($periodo === 'all') {
+            $startDate = Carbon::create(2000, 1, 1);
+        } else {
+            $startDate = Carbon::now()->subDays((int)$periodo);
+        }
 
         $response = [
             'periodo' => $periodo,
@@ -28,17 +33,41 @@ class RelatorioController extends Controller
         if ($tipo === 'geral') {
             $statsOrcamentos = Orcamento::where('created_at', '>=', $startDate)
                 ->whereIn('status', ['Aprovado', 'Finalizado', 'Pago'])
-                ->select(DB::raw('SUM(valor_total) as faturamento'), DB::raw('SUM(lucro_estimado) as lucro'))->first();
+                ->select(
+                    DB::raw('SUM(valor_total) as faturamento'), 
+                    DB::raw('SUM(lucro_estimado) as lucro'),
+                    DB::raw('SUM(custo_estimado) as custo')
+                )->first();
 
             $statsImpressoes = Impressao::where('created_at', '>=', $startDate)
-                ->where('status', 'concluido')
-                ->select(DB::raw('SUM(peso_estimado) as consumo_gramas'), DB::raw('COUNT(*) as total_impressoes'))->first();
+                ->select(
+                    DB::raw('SUM(peso_estimado * quantidade) as consumo_gramas'), 
+                    DB::raw('SUM(quantidade) as total_pecas'),
+                    DB::raw('COUNT(*) as total_lotes'),
+                    DB::raw("SUM(CASE WHEN status = 'concluido' THEN quantidade ELSE 0 END) as sucesso"),
+                    DB::raw("SUM(CASE WHEN status = 'falha' THEN quantidade ELSE 0 END) as falhas")
+                )->first();
 
+            $response['financeiro'] = [
+                'receita' => (float) ($statsOrcamentos->faturamento ?? 0),
+                'lucro' => (float) ($statsOrcamentos->lucro ?? 0),
+                'custo' => (float) ($statsOrcamentos->custo ?? 0),
+            ];
+
+            $response['producao'] = [
+                'total_pecas' => (int) ($statsImpressoes->total_pecas ?? 0),
+                'total_lotes' => (int) ($statsImpressoes->total_lotes ?? 0),
+                'sucesso' => (int) ($statsImpressoes->sucesso ?? 0),
+                'falhas' => (int) ($statsImpressoes->falhas ?? 0),
+                'material_usado' => (float) ($statsImpressoes->consumo_gramas ?? 0),
+            ];
+
+            // Manter compatibilidade legada se necessário
             $response['stats'] = [
                 'faturamento' => 'R$ ' . number_format($statsOrcamentos->faturamento ?? 0, 2, ',', '.'),
                 'lucro' => 'R$ ' . number_format($statsOrcamentos->lucro ?? 0, 2, ',', '.'),
                 'consumoMaterial' => number_format(($statsImpressoes->consumo_gramas ?? 0) / 1000, 2, ',', '.') . 'kg',
-                'totalImpressoes' => $statsImpressoes->total_impressoes ?? 0,
+                'totalImpressoes' => $statsImpressoes->total_pecas ?? 0,
             ];
 
             $response['topProdutos'] = Orcamento::where('created_at', '>=', $startDate)

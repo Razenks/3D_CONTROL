@@ -84,7 +84,7 @@ export default function ModalEditarMaterial({ isOpen, onClose, material, onSuces
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase mb-1">Tipo</label>
               <select 
@@ -112,16 +112,18 @@ export default function ModalEditarMaterial({ isOpen, onClose, material, onSuces
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase mb-1">Cor</label>
-              <select 
-                value={formData.cor_id} 
-                onChange={(e) => setFormData({...formData, cor_id: e.target.value})}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold"
-              >
-                {cores.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              <div className="flex gap-2 items-center">
+                <select 
+                  value={formData.cor_id} 
+                  onChange={(e) => setFormData({...formData, cor_id: e.target.value})}
+                  className="flex-1 min-w-0 px-2 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                >
+                  {cores.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase mb-1">Qtd. Restante ({formData.unidade})</label>

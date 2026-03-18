@@ -17,7 +17,8 @@ class ProdutoCatalogoController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string',
             'peso_padrao' => 'required|numeric|min:0',
-            'tempo_padrao' => 'required|string'
+            'tempo_padrao' => 'required|string',
+            'preco_venda' => 'nullable|numeric|min:0'
         ]);
 
         $produto = ProdutoCatalogo::create($validated);

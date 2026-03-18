@@ -185,6 +185,29 @@ export default function CalculadoraPrecificacao() {
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Falha/Risco (%)</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.falha_risco} 
+                                    onChange={e => setFormData({...formData, falha_risco: e.target.value})}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold text-[#2A3240]"
+                                    placeholder="Ex: 10"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Lucro Desejado (%)</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.lucro_desejado} 
+                                    onChange={e => setFormData({...formData, lucro_desejado: e.target.value})}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold text-[#2A3240]"
+                                    placeholder="Ex: 100"
+                                />
+                            </div>
+                        </div>
+
                         <button 
                             onClick={calcular}
                             className="w-full bg-[#2A3240] text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest hover:bg-gray-800 transition-all"

@@ -26,4 +26,16 @@ class CorController extends Controller
         $cor = Cor::create($request->all());
         return response()->json($cor, 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $cor = Cor::findOrFail($id);
+        $request->validate([
+            'codigo' => 'required|string|unique:cores,codigo,' . $id,
+            'nome' => 'required|string',
+            'hex' => 'nullable|string'
+        ]);
+        $cor->update($request->all());
+        return response()->json($cor);
+    }
 }

@@ -16,6 +16,7 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
     peso_estimado: '',
     tempo_estimado: '',
     projeto_nome: '',
+    preco_venda: '',
     gcode_filename: '',
     quantidade: 1
   });
@@ -73,10 +74,15 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
 
     const orc = orcamentos.find(o => o.id === parseInt(id));
     if (orc) {
+      const det = orc.detalhes_calculo || {};
+      const q = parseInt(det.quantidade || 1);
+      const precoUn = q > 0 ? (parseFloat(orc.valor_total) / q) : 0;
+
       setFormData({
         ...formData,
         orcamento_id: id,
         projeto_nome: orc.projeto,
+        preco_venda: precoUn.toFixed(2),
         peso_estimado: orc.detalhes_calculo?.peso || '',
         tempo_estimado: `${orc.detalhes_calculo?.horas || 0}h ${orc.detalhes_calculo?.minutos || 0}m`,
         cliente_id: orc.cliente_id || '',
@@ -106,6 +112,7 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
         setFormData({
             ...formData,
             projeto_nome: prod.nome,
+            preco_venda: prod.preco_venda || '',
             peso_estimado: prod.peso_padrao,
             tempo_estimado: formatarTempo(prod.tempo_padrao),
             orcamento_id: '',
@@ -133,7 +140,7 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
       if (response.ok) {
         onSucesso();
         onClose();
-        setFormData({ orcamento_id: '', material_id: '', impressora_id: '', peso_estimado: '', tempo_estimado: '', projeto_nome: '', cliente_id: '', quantidade: 1 });
+        setFormData({ orcamento_id: '', material_id: '', impressora_id: '', peso_estimado: '', tempo_estimado: '', projeto_nome: '', preco_venda: '', cliente_id: '', quantidade: 1 });
       } else {
         const data = await response.json();
         alert(`ERRO: ${data.message}`);
@@ -178,6 +185,11 @@ export default function ModalNovaImpressao({ isOpen, onClose, onSucesso }) {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Nome do Projeto / Peça</label>
             <input type="text" required placeholder="Ex: Suporte Articulado" value={formData.projeto_nome} onChange={(e) => setFormData({...formData, projeto_nome: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Preço de Venda Unitário (R$)</label>
+            <input type="number" step="0.01" placeholder="Ex: 45.00" value={formData.preco_venda} onChange={(e) => setFormData({...formData, preco_venda: e.target.value})} className="w-full px-4 py-2 border border-green-200 bg-green-50 font-bold text-green-700 rounded-lg outline-none" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

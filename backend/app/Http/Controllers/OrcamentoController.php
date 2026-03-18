@@ -13,7 +13,7 @@ class OrcamentoController extends Controller
     public function index()
     {
         // Retorna todos os orçamentos, ordenados pelos mais recentes
-        $orcamentos = Orcamento::orderBy('created_at', 'desc')->get();
+        $orcamentos = Orcamento::with('clienteRel')->orderBy('created_at', 'desc')->get();
         return response()->json($orcamentos);
     }
 
@@ -23,20 +23,30 @@ class OrcamentoController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'cliente_id' => 'nullable|exists:clientes,id',
             'cliente' => 'nullable|string|max:255',
             'projeto' => 'required|string|max:255',
             'valor_total' => 'required|numeric|min:0',
             'custo_estimado' => 'required|numeric|min:0',
             'lucro_estimado' => 'required|numeric|min:0',
             'status' => 'sometimes|string',
+            'metodo_pagamento' => 'nullable|string',
             'detalhes_calculo' => 'nullable|array'
         ]);
+
+        // Se houver cliente_id mas não houver nome de cliente, preencher com o nome do cliente do banco
+        if (!empty($validatedData['cliente_id']) && empty($validatedData['cliente'])) {
+            $cliente = \App\Models\Cliente::find($validatedData['cliente_id']);
+            if ($cliente) {
+                $validatedData['cliente'] = $cliente->nome;
+            }
+        }
 
         $orcamento = Orcamento::create($validatedData);
 
         return response()->json([
             'message' => 'Orçamento gerado com sucesso!',
-            'orcamento' => $orcamento
+            'orcamento' => $orcamento->load('clienteRel')
         ], 201);
     }
 
@@ -45,7 +55,7 @@ class OrcamentoController extends Controller
      */
     public function show($id)
     {
-        $orcamento = Orcamento::findOrFail($id);
+        $orcamento = Orcamento::with('clienteRel')->findOrFail($id);
         return response()->json($orcamento);
     }
 
@@ -57,8 +67,9 @@ class OrcamentoController extends Controller
         $orcamento = Orcamento::findOrFail($id);
         
         $validatedData = $request->validate([
-            'status' => 'required|string',
+            'status' => 'sometimes|string',
             'valor_total' => 'sometimes|numeric|min:0',
+            'metodo_pagamento' => 'sometimes|string',
             'motivo_rejeicao' => 'nullable|string'
         ]);
 

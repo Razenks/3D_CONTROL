@@ -24,6 +24,7 @@ class Impressao extends Model
         'data_inicio',
         'data_fim',
         'projeto_nome',
+        'preco_venda',
         'peso_estimado',
         'tempo_estimado',
         'detalhes_tecnicos'
@@ -34,6 +35,7 @@ class Impressao extends Model
         'data_inicio' => 'datetime',
         'data_fim' => 'datetime',
         'peso_estimado' => 'float',
+        'preco_venda' => 'float',
         'progresso' => 'integer',
         'quantidade' => 'integer'
     ];

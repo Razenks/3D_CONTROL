@@ -15,7 +15,7 @@ class ImpressaoController extends Controller
     protected $columns = [
         'id', 'impressora_id', 'orcamento_id', 'material_id', 'cliente_id',
         'status', 'progresso', 'quantidade', 'quantidade_concluida',
-        'data_inicio', 'data_fim', 'projeto_nome', 'peso_estimado',
+        'data_inicio', 'data_fim', 'projeto_nome', 'preco_venda', 'peso_estimado',
         'tempo_estimado', 'detalhes_tecnicos', 'created_at', 'updated_at'
     ];
 
@@ -36,6 +36,7 @@ class ImpressaoController extends Controller
             'material_id' => 'required',
             'cliente_id' => 'nullable',
             'projeto_nome' => 'required|string',
+            'preco_venda' => 'nullable|numeric|min:0',
             'gcode_filename' => 'nullable|string',
             'peso_estimado' => 'required|numeric|min:0',
             'tempo_estimado' => 'nullable|string',
@@ -61,13 +62,13 @@ class ImpressaoController extends Controller
 
             $query = 'INSERT INTO impressoes (
                 impressora_id, orcamento_id, material_id, cliente_id, gcode_filename,
-                projeto_nome, peso_estimado, tempo_estimado, quantidade, 
+                projeto_nome, preco_venda, peso_estimado, tempo_estimado, quantidade, 
                 quantidade_concluida, status, progresso, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
 
             DB::insert($query, [
                 $impressoraId, $orcamentoId, $materialId, $clienteId, $validated['gcode_filename'] ?? null,
-                $validated['projeto_nome'], $pesoUnidade, $validated['tempo_estimado'] ?? '0h 0m',
+                $validated['projeto_nome'], $validated['preco_venda'] ?? null, $pesoUnidade, $validated['tempo_estimado'] ?? '0h 0m',
                 $quantidade, 0, $validated['status'] ?? 'fila', 0
             ]);
 
@@ -141,7 +142,7 @@ class ImpressaoController extends Controller
                     }
 
                     $custoUnidade = 0;
-                    $margemSugerida = 250; // Padrão caso não haja orçamento
+                    $margemSugerida = 250; // Padrão caso não haja orçamento nem preco_venda
                     
                     if ($impressao->orcamento_id) {
                         $orc = Orcamento::find($impressao->orcamento_id);
@@ -153,13 +154,22 @@ class ImpressaoController extends Controller
                             // Custo de material unitário
                             $custoUnidade = (float)$orc->custo_estimado / $qtdOrc;
                             
-                            // Se o orçamento já tem um valor total, vamos calcular a "margem real" 
-                            // que foi usada para que o preço de venda no estoque bata com o orçamento.
-                            // Preço Venda = Custo * (1 + Margem/100)
-                            // Logo: Margem = ((Preço Venda / Custo) - 1) * 100
                             if ($custoUnidade > 0) {
                                 $precoVendaUnidade = (float)$orc->valor_total / $qtdOrc;
                                 $margemSugerida = (($precoVendaUnidade / $custoUnidade) - 1) * 100;
+                            }
+                        }
+                    } elseif ($impressao->preco_venda > 0) {
+                        // Se veio do catálogo com preço fixo
+                        // Precisamos estimar o custo do material para calcular a margem que será salva no Produto
+                        if ($impressao->material_id) {
+                            $mat = Material::find($impressao->material_id);
+                            if ($mat) {
+                                // custo_unidade no Material é o custo por KG ou ML
+                                $custoUnidade = ((float)$impressao->peso_estimado / 1000) * (float)$mat->custo_unidade;
+                                if ($custoUnidade > 0) {
+                                    $margemSugerida = (($impressao->preco_venda / $custoUnidade) - 1) * 100;
+                                }
                             }
                         }
                     }

@@ -15,11 +15,13 @@ class ProdutoCatalogo extends Model
         'nome',
         'peso_padrao',
         'tempo_padrao',
+        'preco_venda',
         'ativo'
     ];
 
     protected $casts = [
         'ativo' => 'boolean',
-        'peso_padrao' => 'float'
+        'peso_padrao' => 'float',
+        'preco_venda' => 'float'
     ];
 }

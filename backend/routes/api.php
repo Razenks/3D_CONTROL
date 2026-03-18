@@ -38,8 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Marcas e Cores
     Route::get('/marcas', [MarcaController::class, 'index']);
     Route::post('/marcas', [MarcaController::class, 'store']);
+    Route::put('/marcas/{id}', [MarcaController::class, 'update']);
     Route::get('/cores', [CorController::class, 'index']);
     Route::post('/cores', [CorController::class, 'store']);
+    Route::put('/cores/{id}', [CorController::class, 'update']);
 
     // Clientes
     Route::apiResource('clientes', ClienteController::class);

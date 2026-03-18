@@ -1,1 +1,89 @@
 @import "tailwindcss";
+
+/* 1. VARIÁVEIS DE CORES */
+:root {
+  --bg-corpo: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-hover: #f3f4f6; /* Hover claro */
+  --texto-forte: #2A3240;
+  --texto-suave: #64748b;
+  --borda: #e5e7eb;
+}
+
+/* 2. MUDANÇA DE VARIÁVEIS NO MODO ESCURO */
+.dark {
+  --bg-corpo: #0f172a;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;  /* Hover escuro (slate 700) */
+  --texto-forte: #ffffff;
+  --texto-suave: #cbd5e1;
+  --borda: #334155;
+}
+
+/* 3. APLICAÇÃO GLOBAL */
+body {
+  background-color: var(--bg-corpo);
+  color: var(--texto-forte);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* 4. REGRAS EXCLUSIVAS PARA O MODO ESCURO (.dark) */
+
+/* Fundos e Hover */
+.dark .bg-white, .dark .bg-gray-50, .dark .bg-slate-50 {
+  background-color: var(--bg-card) !important;
+}
+
+/* FORÇAR HOVER NO DARK MODE */
+.dark .hover\:bg-gray-50:hover, 
+.dark .hover\:bg-gray-100:hover, 
+.dark .hover\:bg-slate-50:hover, 
+.dark .hover\:bg-slate-100:hover,
+.dark tr:hover, 
+.dark .group:hover .group-hover\:bg-gray-50 {
+  background-color: var(--bg-hover) !important;
+}
+
+/* Títulos e Textos Fortes */
+.dark h1, .dark h2, .dark h3, .dark h4, 
+.dark .text-\[\#2A3240\], 
+.dark .text-gray-900, 
+.dark .text-gray-800,
+.dark .font-black, 
+.dark .font-bold {
+  color: #ffffff !important;
+}
+
+/* Textos de apoio (Cinzas) */
+.dark .text-gray-600, .dark .text-gray-500, .dark .text-gray-400 {
+  color: var(--texto-suave) !important;
+}
+
+/* Badges e Elementos de Destaque */
+.dark .bg-gray-100, .dark .bg-slate-100 {
+  background-color: var(--borda) !important;
+}
+
+.dark .bg-gray-100 span, .dark .bg-gray-100 div, .dark .text-gray-700 {
+  color: #ffffff !important;
+}
+
+/* Bordas */
+.dark .border, .dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300 {
+  border-color: var(--borda) !important;
+}
+
+/* Inputs e Selects */
+.dark input, .dark select, .dark textarea {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: var(--borda) !important;
+}
+
+/* 5. REGRAS PARA O MODO CLARO (RETORNO AO ORIGINAL) */
+html:not(.dark) .text-\[\#2A3240\] { color: #2A3240 !important; }
+html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) h3, html:not(.dark) h4 { color: #2A3240 !important; }
+html:not(.dark) .bg-white { background-color: #ffffff !important; }
+html:not(.dark) .hover\:bg-gray-50:hover { background-color: #f9fafb !important; }
+html:not(.dark) .text-gray-600 { color: #4b5563 !important; }
+html:not(.dark) .text-gray-500 { color: #6b7280 !important; }

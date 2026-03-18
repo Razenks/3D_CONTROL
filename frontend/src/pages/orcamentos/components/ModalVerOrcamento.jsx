@@ -17,7 +17,7 @@ export default function ModalVerOrcamento({ isOpen, onClose, orcamento }) {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Cliente</label>
-              <p className="text-[#2A3240] font-semibold">{orcamento.cliente || 'Consumidor Final'}</p>
+              <p className="text-[#2A3240] font-semibold">{orcamento.cliente_rel ? orcamento.cliente_rel.nome : (orcamento.cliente || 'Consumidor Final')}</p>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Projeto / Produto</label>

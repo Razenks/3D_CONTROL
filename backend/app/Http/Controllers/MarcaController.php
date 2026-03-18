@@ -22,4 +22,12 @@ class MarcaController extends Controller
         $marca = Marca::create($request->all());
         return response()->json($marca, 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $marca = Marca::findOrFail($id);
+        $request->validate(['nome' => 'required|string|unique:marcas,nome,' . $id]);
+        $marca->update($request->all());
+        return response()->json($marca);
+    }
 }

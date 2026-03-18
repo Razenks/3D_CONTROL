@@ -14,7 +14,12 @@ export default function ModeloOrcamentoCliente({ isOpen, onClose, orcamento }) {
     setExporting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Forçar o zoom para 1 temporariamente para a captura ser fiel
+      const wrapper = document.querySelector('.responsive-pdf-wrapper');
+      const originalTransform = wrapper.style.transform;
+      wrapper.style.transform = 'scale(1)';
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(printRef.current, {
         scale: 2,
@@ -24,15 +29,23 @@ export default function ModeloOrcamentoCliente({ isOpen, onClose, orcamento }) {
         width: 794,
         height: 1123,
         windowWidth: 794,
+        windowHeight: 1123,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0
       });
       
+      // Restaurar transform original
+      wrapper.style.transform = originalTransform;
+
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`orcamento-${orcamento.id}-${orcamento.cliente || 'cliente'}.pdf`);
+      pdf.save(`orcamento-${orcamento.id}-${(orcamento.cliente_rel ? orcamento.cliente_rel.nome : orcamento.cliente) || 'cliente'}.pdf`);
       onClose();
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
@@ -135,7 +148,7 @@ export default function ModeloOrcamentoCliente({ isOpen, onClose, orcamento }) {
                         <tr>
                             <td style={{ width: '50%', paddingRight: '20px', verticalAlign: 'top' }}>
                                 <h3 style={{ fontSize: '10px', fontWeight: '900', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '1px' }}>Dados do Solicitante</h3>
-                                <p style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#2A3240' }}>{orcamento.cliente || 'Prezado(a) Cliente'}</p>
+                                <p style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#2A3240' }}>{orcamento.cliente_rel ? orcamento.cliente_rel.nome : (orcamento.cliente || 'Prezado(a) Cliente')}</p>
                                 <p style={{ margin: '5px 0 0 0', fontSize: '13px', color: '#6B7280' }}>Projeto: <span style={{ fontWeight: 'bold', color: '#2A3240' }}>{orcamento.projeto}</span></p>
                             </td>
                             <td style={{ width: '50%', verticalAlign: 'top' }}>

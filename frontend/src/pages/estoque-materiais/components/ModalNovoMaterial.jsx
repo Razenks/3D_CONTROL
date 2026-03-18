@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API_BASE_URL from '../../../config';
+import ModalNovaCor from './ModalNovaCor';
 
 export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
   const [formData, setFormData] = useState({
@@ -16,7 +17,10 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
 
   const [marcas, setMarcas] = useState([]);
   const [cores, setCores] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [loadingExtras, setLoadingExtras] = useState(false);
+  const [isModalCorOpen, setIsModalCorOpen] = useState(false);
+
 
   useEffect(() => {
     if (isOpen) {
@@ -90,19 +94,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
     } catch (err) { alert('Erro ao adicionar marca'); }
   };
 
-  const handleAddCor = async () => {
-    const codigo = prompt('Digite o número/código da cor:');
-    const nome = prompt('Digite o nome da cor:');
-    if (!codigo || !nome) return;
-    const token = localStorage.getItem('auth_token');
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/cores`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ codigo, nome })
-        });
-        if (res.ok) fetchExtras();
-    } catch (err) { alert('Erro ao adicionar cor'); }
+  const handleAddCor = () => {
+    setIsModalCorOpen(true);
   };
 
   const handleSubmit = (e) => {
@@ -132,7 +125,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Tipo</label>
               <select name="tipo" value={formData.tipo} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
@@ -151,27 +144,28 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
                     <option value="">Selecione...</option>
                     {marcas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
                 </select>
-                <button type="button" onClick={handleAddMarca} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
+                <button type="button" onClick={handleAddMarca} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black w-10 h-10 flex-shrink-0">+</button>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Código Cor</label>
               <input type="text" name="cor_codigo" value={formData.cor_codigo} onChange={handleChange} placeholder="Ex: 1" className="w-full px-3 py-2 border rounded-lg outline-none font-bold text-sm" />
             </div>
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Selecionar Cor</label>
-              <div className="flex gap-2">
-                <select name="cor_id" required value={formData.cor_id} onChange={handleChange} className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
+              <div className="flex gap-2 items-center">
+                <div className="w-9 h-9 rounded-lg border border-gray-200 shadow-inner flex-shrink-0" style={{ backgroundColor: formData.hexCor }}></div>
+                <select name="cor_id" required value={formData.cor_id} onChange={handleChange} className="flex-1 min-w-0 px-2 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none text-sm font-bold">
                     <option value="">Selecione...</option>
                     {cores.map(c => <option key={c.id} value={c.id}>{c.codigo} - {c.nome}</option>)}
                 </select>
-                <button type="button" onClick={handleAddCor} className="bg-gray-100 px-3 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black">+</button>
+                <button type="button" onClick={handleAddCor} className="bg-gray-100 w-9 h-9 rounded-lg hover:bg-gray-200 text-[#2A3240] font-black flex-shrink-0 flex items-center justify-center">+</button>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Custo (R$ /KG)</label>
               <input type="number" name="custoKG" required step="0.01" value={formData.custoKG} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg outline-none font-bold text-sm" />
@@ -187,6 +181,12 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSalvar }) {
           </div>
         </form>
       </div>
+
+      <ModalNovaCor 
+        isOpen={isModalCorOpen} 
+        onClose={() => setIsModalCorOpen(false)} 
+        onSucesso={fetchExtras} 
+      />
     </div>
   );
 }

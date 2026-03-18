@@ -74,7 +74,9 @@ export default function TabelaOrcamentos({ titulo, dados, isHistorico = false, o
                 <tr key={orcamento.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 font-bold text-[#2A3240]">ORC-{orcamento.id}</td>
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-[#2A3240]">{orcamento.cliente || 'Consumidor Final'}</div>
+                    <div className="font-semibold text-[#2A3240]">
+                      {orcamento.cliente_rel ? orcamento.cliente_rel.nome : (orcamento.cliente || 'Consumidor Final')}
+                    </div>
                     <div className="text-gray-500 text-xs">{orcamento.projeto}</div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{formatarData(orcamento.created_at)}</td>
