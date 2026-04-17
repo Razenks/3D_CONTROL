@@ -51,6 +51,40 @@ class MaterialController extends Controller
         return response()->json($material->load(['marca', 'cor']));
     }
 
+    public function comprar(Request $request, $id)
+    {
+        $material = Material::findOrFail($id);
+        $validated = $request->validate([
+            'quantidade' => 'required|numeric', // Qtd em kg/L
+            'custo_unidade' => 'required|numeric', // Preço por kg/L
+            'fornecedor' => 'nullable|string',
+            'observacao' => 'nullable|string',
+        ]);
+
+        $valor_total = $validated['quantidade'] * $validated['custo_unidade'];
+
+        // Registra a compra
+        \App\Models\CompraMaterial::create([
+            'material_id' => $id,
+            'quantidade' => $validated['quantidade'],
+            'custo_unidade' => $validated['custo_unidade'],
+            'valor_total' => $valor_total,
+            'fornecedor' => $validated['fornecedor'],
+            'observacao' => $validated['observacao'],
+        ]);
+
+        // Atualiza o estoque do material
+        // Se a unidade do material for g/ml, converte a quantidade comprada (kg/L) para g/ml
+        $conversao = ($material->unidade === 'g' || $material->unidade === 'ml') ? 1000 : 1;
+        $material->quantidade_restante += ($validated['quantidade'] * $conversao);
+        
+        // Atualiza o custo unitário no material (sempre armazenado por kg/L no sistema)
+        $material->custo_unidade = $validated['custo_unidade'];
+        $material->save();
+
+        return response()->json($material->load(['marca', 'cor']));
+    }
+
     public function destroy($id)
     {
         $material = Material::findOrFail($id);

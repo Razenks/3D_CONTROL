@@ -65,9 +65,9 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-300">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-[#2A3240] text-white">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4 transition-all">
+      <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border dark:border-gray-800 animate-in zoom-in duration-300">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-[#2A3240] text-white">
           <div>
             <h3 className="text-xl font-black uppercase tracking-tight">Arquivos na Memória</h3>
             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{printerName}</p>
@@ -77,16 +77,16 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
           </button>
         </div>
 
-        <div className="p-0 max-h-[60vh] overflow-y-auto bg-gray-50">
+        <div className="p-0 max-h-[60vh] overflow-y-auto bg-gray-50 dark:bg-black/20 transition-colors">
           {loading ? (
-            <div className="text-center py-20 text-gray-500 font-black animate-pulse uppercase tracking-widest">Acessando disco da K1...</div>
+            <div className="text-center py-20 text-gray-500 dark:text-gray-600 font-black animate-pulse uppercase tracking-widest">Acessando disco da K1...</div>
           ) : files.length > 0 ? (
-            <div className="grid grid-cols-1 divide-y divide-gray-100">
+            <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-800">
               {files.map((file, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 hover:bg-white transition-colors group">
+                <div key={idx} className="flex items-center justify-between p-4 hover:bg-white dark:hover:bg-white/5 transition-colors group">
                   <div className="flex items-center gap-4">
                     {/* Thumbnail da Impressora */}
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                         {file.thumbUrl ? (
                             <img src={file.thumbUrl} alt="Preview" className="w-full h-full object-cover" />
                         ) : (
@@ -99,17 +99,17 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
                     </div>
                     
                     <div>
-                      <p className="font-bold text-gray-800 break-all text-sm md:text-base">{file.name}</p>
-                      <p className="text-[10px] text-gray-400 font-black uppercase flex gap-3 mt-1">
-                        <span className="bg-gray-100 px-2 py-0.5 rounded">{file.size}</span>
-                        <span className="bg-gray-100 px-2 py-0.5 rounded">{file.modified}</span>
+                      <p className="font-bold text-gray-800 dark:text-gray-200 break-all text-sm md:text-base">{file.name}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase flex gap-3 mt-1">
+                        <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{file.size}</span>
+                        <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{file.modified}</span>
                       </p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => handleStartPrint(file.name)}
-                    className="ml-4 p-3 bg-green-100 text-green-600 hover:bg-green-600 hover:text-white rounded-xl transition-all shadow-sm"
+                    className="ml-4 p-3 bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-600 dark:hover:bg-green-600 hover:text-white rounded-xl transition-all shadow-sm"
                     title="Imprimir este arquivo"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,16 +121,16 @@ export default function ModalArquivosImpressora({ isOpen, onClose, printerId, pr
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 text-gray-400 italic font-medium">Nenhum arquivo G-code encontrado.</div>
+            <div className="text-center py-20 text-gray-400 dark:text-gray-600 italic font-medium font-bold uppercase text-[10px] tracking-widest">Nenhum arquivo G-code encontrado.</div>
           )}
         </div>
 
-        <div className="p-6 bg-white border-t border-gray-100 flex justify-end">
+        <div className="p-6 bg-white dark:bg-[#1a1f2e] border-t border-gray-100 dark:border-gray-800 flex justify-end transition-colors">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-black rounded-xl transition-all uppercase text-xs tracking-widest"
+            className="px-8 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 font-black rounded-xl transition-all uppercase text-[10px] tracking-widest"
           >
-            Fechar
+            Fechar Janela
           </button>
         </div>
       </div>

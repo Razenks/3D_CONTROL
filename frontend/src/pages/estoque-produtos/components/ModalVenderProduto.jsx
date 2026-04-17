@@ -97,37 +97,37 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
   if (!isOpen || !produto) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border-t-8 border-[#FF9B54]">
-        <div className="p-6 bg-gray-50 border-b flex justify-between items-center">
-          <h3 className="text-xl font-black text-[#2A3240] uppercase tracking-tighter">Realizar Venda</h3>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+      <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border dark:border-gray-800 border-t-8 border-t-[#FF9B54] dark:border-t-[#FF9B54] animate-in zoom-in duration-200">
+        <div className="p-6 bg-gray-50 dark:bg-gray-800/20 border-b dark:border-gray-800 flex justify-between items-center transition-colors">
+          <h3 className="text-xl font-black text-[#2A3240] dark:text-white uppercase tracking-tighter">Realizar Venda</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
 
-        <form onSubmit={handleVenda} className="p-8 space-y-6">
+        <form onSubmit={handleVenda} className="p-8 space-y-6 transition-colors">
           <div className="text-center">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Produto em Estoque</span>
-            <p className="text-xl font-bold text-[#2A3240]">{produto.nome}</p>
+            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Produto em Estoque</span>
+            <p className="text-xl font-bold text-[#2A3240] dark:text-white">{produto.nome}</p>
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Selecionar Cliente</label>
+            <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Selecionar Cliente</label>
             <select 
               required
               value={clienteId}
               onChange={(e) => setClienteId(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 transition-all"
             >
               <option value="">Selecione o cliente...</option>
-              {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+              {clientes.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1a1f2e]">{c.nome}</option>)}
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Quantidade</label>
+              <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Quantidade</label>
               <input 
                 type="number" 
                 min="1" 
@@ -135,27 +135,27 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
                 required
                 value={quantidade}
                 onChange={(e) => setQuantidade(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 transition-all"
               />
-              <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Disponível: {produto.quantidade}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1">Disponível: {produto.quantidade}</span>
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Valor Total</label>
-              <div className="w-full px-4 py-3 bg-orange-50 border border-orange-100 rounded-xl font-bold text-[#FF9B54]">
+              <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Valor Total</label>
+              <div className="w-full px-4 py-3 bg-orange-50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/20 rounded-xl font-black text-[#FF9B54]">
                 R$ {((produto.custo_material * (1 + (produto.margem_lucro / 100))) * quantidade).toFixed(2)}
               </div>
-              <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Unit.: R$ {(produto.custo_material * (1 + (produto.margem_lucro / 100))).toFixed(2)}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1">Unit.: R$ {(produto.custo_material * (1 + (produto.margem_lucro / 100))).toFixed(2)}</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Forma de Pagamento</label>
+            <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Forma de Pagamento</label>
             <select 
               required
               value={metodoPagamento}
               onChange={(e) => setMetodoPagamento(e.target.value)}
-              className="w-full px-4 py-3 bg-white border-2 border-orange-100 rounded-xl focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240] transition-all"
+              className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-orange-100 dark:border-orange-500/20 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 transition-all"
             >
               <option value="">Selecione...</option>
               <option value="PIX">PIX</option>
@@ -169,7 +169,7 @@ export default function ModalVenderProduto({ isOpen, onClose, produto, onSucesso
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#2A3240] hover:bg-gray-800 text-white font-black py-4 rounded-xl shadow-xl transition-all uppercase text-xs tracking-widest"
+            className="w-full bg-[#2A3240] dark:bg-orange-500 hover:bg-gray-800 dark:hover:bg-orange-600 text-white font-black py-4 rounded-xl shadow-xl shadow-orange-500/10 transition-all uppercase text-xs tracking-widest"
           >
             {loading ? 'Processando...' : 'Confirmar Venda'}
           </button>

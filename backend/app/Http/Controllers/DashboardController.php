@@ -5,31 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\Produto;
 use App\Models\Orcamento;
+use App\Models\Impressao;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    /**
-     * Get summary statistics for the home screen.
-     */
     public function index()
     {
-        // Contagens básicas
         $orcamentosPendentes = Orcamento::whereIn('status', ['Aguardando Análise', 'Precificando'])->count();
         $produtosEstoque = Produto::whereRaw('ativo = true')->where('quantidade', '>', 0)->count();
-        
-        // Materiais com estoque baixo (ex: menos de 400g ou 400ml) e que ainda estejam ativos
-        $materiaisCriticos = Material::whereRaw('ativo = true')
-            ->where('quantidade_restante', '<=', 400)
+        $pedidosFila = Impressao::whereIn('status', ['fila', 'imprimindo'])->count();
+
+        // Materiais com estoque abaixo do mínimo configurado
+        $materiaisCriticos = Material::with(['marca', 'cor'])
+            ->whereRaw('ativo = true')
+            ->whereColumn('quantidade_restante', '<=', 'estoque_minimo')
             ->orderBy('quantidade_restante', 'asc')
             ->get();
 
-        $alertaCriticoCount = $materiaisCriticos->where('quantidade_restante', '<=', 200)->count();
-
-        // Por enquanto, pedidos e impressões serão valores simulados 
-        // até criarmos a tabela de Impressões
-        $pedidosFila = 0; // Futura tabela de Impressões
-        $concluidosSemana = 0; // Futura tabela de Impressões
+        // Crítico = abaixo de metade do mínimo
+        $alertaCriticoCount = $materiaisCriticos->filter(function ($m) {
+            return $m->quantidade_restante <= ($m->estoque_minimo / 2);
+        })->count();
 
         return response()->json([
             'stats' => [
@@ -38,15 +35,32 @@ class DashboardController extends Controller
                 'produtos_estoque' => $produtosEstoque,
                 'alertas_criticos' => $alertaCriticoCount,
             ],
-            'materiais_alertas' => $materiaisCriticos->map(function($m) {
+            'materiais_alertas' => $materiaisCriticos->map(function ($m) {
+                $critico = $m->quantidade_restante <= ($m->estoque_minimo / 2);
                 return [
                     'id' => $m->id,
-                    'material' => $m->tipo . ' (' . $m->marca . ')',
+                    'material' => $m->tipo . ' (' . ($m->marca->nome ?? 'Sem marca') . ')',
+                    'cor' => $m->cor->nome ?? 'Sem cor',
+                    'hex' => $m->cor->hex ?? '#999999',
                     'restando' => $m->quantidade_restante . $m->unidade,
-                    'status' => $m->quantidade_restante <= 200 ? 'Crítico' : 'Atenção'
+                    'minimo' => $m->estoque_minimo . $m->unidade,
+                    'status' => $critico ? 'Crítico' : 'Baixo'
                 ];
             }),
-            'fila_producao' => [] // Futura tabela de Impressões
+            'fila_producao' => Impressao::with('impressora')
+                ->whereIn('status', ['fila', 'imprimindo'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get()
+                ->map(function ($imp) {
+                    return [
+                        'id' => $imp->id,
+                        'projeto' => $imp->projeto_nome,
+                        'impressora' => $imp->impressora->nome ?? 'N/A',
+                        'status' => $imp->status,
+                        'progresso' => $imp->progresso
+                    ];
+                })
         ]);
     }
 }

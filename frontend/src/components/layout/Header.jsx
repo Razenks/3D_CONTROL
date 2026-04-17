@@ -12,25 +12,25 @@ export default function Header({ onMenuClick }) {
   };
 
   return (
-    <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4 md:px-6 border-b border-gray-200">
+    <header className="h-16 bg-white dark:bg-[#1a1f2e] shadow-sm flex items-center justify-between px-4 md:px-6 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
       <div className="flex items-center gap-4">
         {/* Botão Hambúrguer (Mobile) */}
         <button 
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
-        <div className="text-[#2A3240] font-bold text-sm md:text-base truncate max-w-[150px] sm:max-w-none">
+        <div className="text-[#2A3240] dark:text-gray-200 font-bold text-sm md:text-base truncate max-w-[150px] sm:max-w-none">
             <span className="hidden sm:inline">Painel Administrativo - </span>RB PRINTINGS
         </div>
       </div>
       
       <div className="flex items-center space-x-3 md:space-x-6">
         <div className="flex items-center space-x-2 md:space-x-3">
-            <span className="text-xs md:text-sm text-gray-600 font-bold hidden xs:inline">{user.name}</span>
-            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-orange-100 text-[#FF9B54] border border-orange-200 flex items-center justify-center font-black text-xs md:text-sm">
+            <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-bold hidden xs:inline">{user.name}</span>
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-orange-100 dark:bg-orange-500/10 text-[#FF9B54] border border-orange-200 dark:border-orange-500/30 flex items-center justify-center font-black text-xs md:text-sm">
             {user.name.charAt(0).toUpperCase()}
             </div>
         </div>

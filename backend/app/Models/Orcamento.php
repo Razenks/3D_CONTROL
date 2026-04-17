@@ -13,6 +13,7 @@ class Orcamento extends Model
         'cliente_id',
         'cliente', // Mantido para compatibilidade legado se necessário
         'projeto',
+        'itens',
         'valor_total',
         'custo_estimado',
         'lucro_estimado',
@@ -23,7 +24,8 @@ class Orcamento extends Model
     ];
 
     protected $casts = [
-        'detalhes_calculo' => 'array'
+        'detalhes_calculo' => 'array',
+        'itens' => 'array'
     ];
 
     public function clienteRel()

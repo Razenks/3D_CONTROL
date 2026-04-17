@@ -27,57 +27,59 @@ export default function TabelaEstoqueProdutos({ produtos, loading, onRefresh, on
   if (loading) return <div className="text-center py-10 font-black text-gray-400 animate-pulse uppercase tracking-widest">Sincronizando Estoque...</div>;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-300">
       <div className="overflow-x-auto">
         <table className="w-full text-left">
-          <thead className="bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-widest">
+          <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest">
             <tr>
-              <th className="px-6 py-4">Produto / Material</th>
-              <th className="px-6 py-4 text-center">Estoque</th>
-              <th className="px-6 py-4">Preço Sugerido</th>
-              <th className="px-6 py-4">Margem</th>
-              <th className="px-6 py-4 text-right">Ações</th>
+              <th className="px-6 py-4 border-b dark:border-gray-800">Produto / Material</th>
+              <th className="px-6 py-4 text-center border-b dark:border-gray-800">Estoque</th>
+              <th className="px-6 py-4 border-b dark:border-gray-800">Preço Sugerido</th>
+              <th className="px-6 py-4 border-b dark:border-gray-800">Margem</th>
+              <th className="px-6 py-4 text-right border-b dark:border-gray-800">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {produtos.length > 0 ? (
               produtos.map((p) => {
                 const precoVenda = p.custo_material * (1 + (p.margem_lucro / 100));
                 return (
-                  <tr key={p.id} className={`hover:bg-gray-50/50 transition-colors ${!p.ativo ? 'opacity-40 grayscale bg-gray-50' : ''}`}>
+                  <tr key={p.id} className={`hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors ${!p.ativo ? 'opacity-40 grayscale bg-gray-50 dark:bg-gray-900' : ''}`}>
                     <td className="px-6 py-4">
-                      <div className="font-black text-[#2A3240] text-sm uppercase">{p.nome}</div>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="font-black text-[#2A3240] dark:text-gray-200 text-sm uppercase leading-none mb-1">{p.nome}</div>
+                      <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.material_hex_cor || '#ccc' }}></div>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase">{p.material_nome} {p.material_cor}</span>
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">{p.material_nome} {p.material_cor}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-3 py-1 rounded-full text-xs font-black ${p.quantidade > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-black ${p.quantidade > 0 ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400'}`}>
                         {p.quantidade} un
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-black text-[#2A3240]">R$ {precoVenda.toFixed(2)}</div>
-                      <div className="text-[10px] text-gray-400 font-bold">Custo: R$ {parseFloat(p.custo_material).toFixed(2)}</div>
+                      <div className="font-black text-[#2A3240] dark:text-gray-200">R$ {precoVenda.toFixed(2)}</div>
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">Custo: R$ {parseFloat(p.custo_material).toFixed(2)}</div>
                     </td>
                     <td className="px-6 py-4 font-black text-[#FF9B54] text-sm">{p.margem_lucro}%</td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-3">
                         <button 
                             disabled={p.quantidade <= 0}
                             onClick={() => handleVenda(p)}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all shadow-md disabled:opacity-30"
+                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-green-500/20 disabled:opacity-30 disabled:shadow-none"
                         >Vender</button>
                         
-                        <button onClick={() => onEdit(p)} className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                        <button onClick={() => onEdit(p)} className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         </button>
 
-                        <button onClick={() => handleToggleAtivo(p)} className={`p-2 ${p.ativo ? 'text-gray-300 hover:text-red-500' : 'text-green-500 hover:text-green-700'}`}>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                        <button onClick={() => handleToggleAtivo(p)} className={`p-2 transition-colors ${p.ativo ? 'text-gray-300 dark:text-gray-600 hover:text-red-500' : 'text-green-500 hover:text-green-700'}`}>
+                            {p.ativo ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.001 0 01-15.357-2m15.357 2H15" /></svg>
+                            )}
                         </button>
                       </div>
                     </td>
@@ -85,7 +87,7 @@ export default function TabelaEstoqueProdutos({ produtos, loading, onRefresh, on
                 );
               })
             ) : (
-              <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400 italic">Sem produtos para exibir.</td></tr>
+              <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400 dark:text-gray-600 font-bold uppercase text-[10px] tracking-widest italic">Sem produtos para exibir.</td></tr>
             )}
           </tbody>
         </table>

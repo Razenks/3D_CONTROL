@@ -47,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('clientes', ClienteController::class);
 
     // Materiais (CRUD)
+    Route::post('materiais/{id}/comprar', [MaterialController::class, 'comprar']);
     Route::apiResource('materiais', MaterialController::class);
 
     // Catálogo de Produtos (Modelos)

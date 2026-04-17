@@ -21,11 +21,16 @@ export default function Sidebar({ onClose }) {
       </div>
 
       {/* Área da Logo / Nome do Sistema */}
-      <div className="flex flex-col items-center justify-center py-6 border-b border-gray-700 gap-3">
-        <img src={logo} alt="Logo" className="h-14 w-auto object-contain" />
-        <h1 className="text-xl font-extrabold tracking-wider">
-          <span className="text-[#FF9B54]">RB</span> PRINTINGS
-        </h1>
+      <div className="flex flex-col items-center justify-center py-8 border-b border-gray-700/50 gap-2">
+        <img src={logo} alt="Logo" className="h-16 w-auto object-contain mb-2" />
+        <div className="text-center">
+          <h1 className="text-2xl font-black tracking-tighter leading-none">
+            <span className="text-[#FF9B54]">RB</span> <span className="text-white">PRINTINGS</span>
+          </h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[4px] mt-1 ml-1">
+            Soluções 3D
+          </p>
+        </div>
       </div>
 
       {/* Links de Navegação */}
@@ -34,36 +39,45 @@ export default function Sidebar({ onClose }) {
           Dashboard
         </NavLink>
 
-        <NavLink to="/impressoes" className={navLinkClasses} onClick={onClose}>
-          Impressões
-        </NavLink>
+        <div className="pt-4 pb-2">
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[2px] px-4 mb-2">Principal</p>
+          
+          <NavLink to="/calculadora" className={navLinkClasses} onClick={onClose}>
+            Calculadora
+          </NavLink>
 
-        <NavLink to="/orcamentos" className={navLinkClasses} onClick={onClose}>
-          Orçamentos
-        </NavLink>
+          <NavLink to="/orcamentos" className={navLinkClasses} onClick={onClose}>
+            Orçamentos
+          </NavLink>
 
-        <NavLink to="/clientes" className={navLinkClasses} onClick={onClose}>
-          Clientes
-        </NavLink>
+          <NavLink to="/impressoes" className={navLinkClasses} onClick={onClose}>
+            Impressões
+          </NavLink>
 
-        <NavLink to="/catalogo" className={navLinkClasses} onClick={onClose}>
-          Catálogo de Modelos
-        </NavLink>
+          <NavLink to="/catalogo" className={navLinkClasses} onClick={onClose}>
+            Catálogo de Modelos
+          </NavLink>
 
-        <NavLink to="/relatorios" className={navLinkClasses} onClick={onClose}>
-          Relatórios
-        </NavLink>
+          <NavLink to="/clientes" className={navLinkClasses} onClick={onClose}>
+            Clientes
+          </NavLink>
+        </div>
 
-        <NavLink to="/produtos-estoque" className={navLinkClasses} onClick={onClose}>
-          Estoque Produtos
-        </NavLink>
+        <div className="pt-4 pb-2">
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[2px] px-4 mb-2">Gestão</p>
 
-        <NavLink to="/materiais-estoque" className={navLinkClasses} onClick={onClose}>
-          Estoque Materiais
-        </NavLink>
-        <NavLink to="/calculadora" className={navLinkClasses} onClick={onClose}>
-          Calculadora
-        </NavLink>
+          <NavLink to="/produtos-estoque" className={navLinkClasses} onClick={onClose}>
+            Estoque Produtos
+          </NavLink>
+
+          <NavLink to="/materiais-estoque" className={navLinkClasses} onClick={onClose}>
+            Estoque Materiais
+          </NavLink>
+
+          <NavLink to="/relatorios" className={navLinkClasses} onClick={onClose}>
+            Relatórios
+          </NavLink>
+        </div>
       </nav>
 
       {/* Rodapé do Menu (Opcional, para Configurações ou Perfil) */}

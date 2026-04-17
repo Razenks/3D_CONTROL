@@ -26,6 +26,7 @@ class OrcamentoController extends Controller
             'cliente_id' => 'nullable|exists:clientes,id',
             'cliente' => 'nullable|string|max:255',
             'projeto' => 'required|string|max:255',
+            'itens' => 'nullable|array',
             'valor_total' => 'required|numeric|min:0',
             'custo_estimado' => 'required|numeric|min:0',
             'lucro_estimado' => 'required|numeric|min:0',
@@ -67,17 +68,32 @@ class OrcamentoController extends Controller
         $orcamento = Orcamento::findOrFail($id);
         
         $validatedData = $request->validate([
+            'cliente_id' => 'nullable|exists:clientes,id',
+            'cliente' => 'nullable|string|max:255',
+            'projeto' => 'sometimes|required|string|max:255',
+            'itens' => 'nullable|array',
+            'valor_total' => 'sometimes|required|numeric|min:0',
+            'custo_estimado' => 'sometimes|required|numeric|min:0',
+            'lucro_estimado' => 'sometimes|required|numeric|min:0',
             'status' => 'sometimes|string',
-            'valor_total' => 'sometimes|numeric|min:0',
-            'metodo_pagamento' => 'sometimes|string',
+            'metodo_pagamento' => 'nullable|string',
+            'detalhes_calculo' => 'nullable|array',
             'motivo_rejeicao' => 'nullable|string'
         ]);
+
+        // Se houver cliente_id mas não houver nome de cliente, preencher com o nome do cliente do banco
+        if (isset($validatedData['cliente_id']) && empty($validatedData['cliente'])) {
+            $cliente = \App\Models\Cliente::find($validatedData['cliente_id']);
+            if ($cliente) {
+                $validatedData['cliente'] = $cliente->nome;
+            }
+        }
 
         $orcamento->update($validatedData);
 
         return response()->json([
-            'message' => 'Orçamento atualizado!',
-            'orcamento' => $orcamento
+            'message' => 'Orçamento atualizado com sucesso!',
+            'orcamento' => $orcamento->load('clienteRel')
         ]);
     }
 

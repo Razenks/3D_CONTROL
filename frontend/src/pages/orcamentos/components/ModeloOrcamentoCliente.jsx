@@ -56,32 +56,33 @@ export default function ModeloOrcamentoCliente({ isOpen, onClose, orcamento }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 md:p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-2 md:p-4 overflow-y-auto">
       {/* Container do Modal que se ajusta à tela */}
-      <div className="bg-white w-full max-w-[900px] max-h-[95vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto">
+      <div className="bg-white dark:bg-[#1a1f2e] w-full max-w-[900px] max-h-[95vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto border dark:border-gray-800 transition-colors duration-300">
         
         {/* Header de Controle */}
-        <div className="bg-[#2A3240] p-4 text-white flex justify-between items-center shrink-0">
+        <div className="bg-[#2A3240] dark:bg-black/40 p-5 text-white flex justify-between items-center shrink-0 border-b dark:border-gray-800">
           <div className="hidden sm:flex items-center gap-3">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-            <span className="font-bold text-[10px] uppercase tracking-widest">Visualização de Impressão</span>
+            <span className="font-black text-[10px] uppercase tracking-[3px]">Visualização de Impressão</span>
           </div>
           <div className="flex gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
             <button 
               onClick={handleExportPDF}
               disabled={exporting}
-              className="bg-[#FF9B54] hover:bg-orange-500 text-[#2A3240] px-4 sm:px-8 py-2 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 uppercase"
+              className="bg-[#FF9B54] hover:bg-orange-600 text-[#2A3240] dark:text-white px-6 sm:px-10 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 uppercase tracking-widest"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               {exporting ? 'GERANDO...' : 'BAIXAR PDF'}
             </button>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-1">
+            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
           </div>
         </div>
 
         {/* ÁREA DE VISUALIZAÇÃO COM ZOOM RESPONSIVO */}
-        <div className="flex-1 bg-gray-200 overflow-auto p-4 md:p-8 flex justify-center items-start">
+        <div className="flex-1 bg-gray-100 dark:bg-black/20 overflow-auto p-4 md:p-8 flex justify-center items-start transition-colors">
           {/* Este wrapper faz o "mágica" do zoom */}
           <div style={{ 
             transform: 'scale(var(--zoom-level, 0.6))', 
@@ -167,25 +168,44 @@ export default function ModeloOrcamentoCliente({ isOpen, onClose, orcamento }) {
                         <thead>
                             <tr style={{ backgroundColor: '#2A3240' }}>
                                 <th style={{ padding: '15px 20px', color: '#ffffff', textAlign: 'left', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', borderRadius: '10px 0 0 0' }}>Descrição Técnica</th>
-                                <th style={{ padding: '15px 20px', color: '#ffffff', textAlign: 'center', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', width: '100px' }}>Qtd.</th>
-                                <th style={{ padding: '15px 20px', color: '#ffffff', textAlign: 'right', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', borderRadius: '0 10px 0 0', width: '150px' }}>Total</th>
+                                <th style={{ padding: '15px 20px', color: '#ffffff', textAlign: 'center', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', width: '80px' }}>Qtd.</th>
+                                <th style={{ padding: '15px 20px', color: '#ffffff', textAlign: 'right', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', borderRadius: '0 10px 0 0', width: '120px' }}>Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6' }}>
-                                    <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#2A3240' }}>{orcamento.projeto}</p>
-                                    <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#6B7280', lineHeight: '1.6' }}>
-                                        Manufatura aditiva de alta precisão.<br />
-                                        Material: <span style={{ fontWeight: 'bold' }}>{orcamento.detalhes_calculo?.material || 'Filamento Premium'}</span><br />
-                                        Peso final estimado: <span style={{ fontWeight: 'bold' }}>{orcamento.detalhes_calculo?.peso || '0'}g</span>
-                                    </p>
-                                </td>
-                                <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', color: '#2A3240' }}>01</td>
-                                <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6', textAlign: 'right', fontSize: '20px', fontWeight: '900', color: '#2A3240' }}>
-                                    R$ {parseFloat(orcamento.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </td>
-                            </tr>
+                            {(orcamento.itens && orcamento.itens.length > 0) ? (
+                                orcamento.itens.map((item, index) => (
+                                    <tr key={index}>
+                                        <td style={{ padding: '20px', borderBottom: '1px solid #F3F4F6' }}>
+                                            <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#2A3240' }}>{item.nome}</p>
+                                            <p style={{ margin: '5px 0 0 0', fontSize: '11px', color: '#6B7280' }}>
+                                                Tamanho/Escala: <span style={{ fontWeight: 'bold' }}>{item.tamanho || 'Conforme projeto'}</span><br />
+                                                Material: <span style={{ fontWeight: 'bold' }}>Filamento Premium</span>
+                                            </p>
+                                        </td>
+                                        <td style={{ padding: '20px', borderBottom: '1px solid #F3F4F6', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', color: '#2A3240' }}>
+                                            {item.quantidade.toString().padStart(2, '0')}
+                                        </td>
+                                        <td style={{ padding: '20px', borderBottom: '1px solid #F3F4F6', textAlign: 'right', fontSize: '14px', fontWeight: 'bold', color: '#2A3240' }}>
+                                            R$ {parseFloat(item.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6' }}>
+                                        <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#2A3240' }}>{orcamento.projeto}</p>
+                                        <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#6B7280', lineHeight: '1.6' }}>
+                                            Manufatura aditiva de alta precisão.<br />
+                                            Material: <span style={{ fontWeight: 'bold' }}>{orcamento.detalhes_calculo?.material || 'Filamento Premium'}</span>
+                                        </p>
+                                    </td>
+                                    <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', color: '#2A3240' }}>01</td>
+                                    <td style={{ padding: '30px 20px', borderBottom: '1px solid #F3F4F6', textAlign: 'right', fontSize: '20px', fontWeight: '900', color: '#2A3240' }}>
+                                        R$ {parseFloat(orcamento.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

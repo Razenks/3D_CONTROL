@@ -43,58 +43,58 @@ export default function ModalNovaImpressora({ isOpen, onClose, onSucesso }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border-t-4 border-[#2A3240] animate-in zoom-in duration-200">
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h3 className="text-lg font-bold text-[#2A3240]">Cadastrar Nova Máquina</h3>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+      <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border dark:border-gray-800 border-t-4 border-t-[#2A3240] dark:border-t-orange-500 animate-in zoom-in duration-200">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800/20 transition-colors">
+          <h3 className="text-lg font-black text-[#2A3240] dark:text-white uppercase tracking-tighter">Cadastrar Nova Máquina</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 transition-colors">
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Nome de Identificação</label>
+            <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Nome de Identificação</label>
             <input
               type="text"
               required
               value={formData.nome}
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 text-sm transition-all"
               placeholder="Ex: Creality K1 Casa"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Modelo da Impressora</label>
+            <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Modelo da Impressora</label>
             <input
               type="text"
               required
               value={formData.modelo}
               onChange={(e) => setFormData({ ...formData, modelo: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 text-sm transition-all"
               placeholder="Ex: Creality K1"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">IP Local / Endereço</label>
+            <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">IP Local / Endereço</label>
             <input
               type="text"
               value={formData.ip_local}
               onChange={(e) => setFormData({ ...formData, ip_local: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-bold text-[#2A3240] dark:text-gray-200 text-sm transition-all"
               placeholder="Ex: 192.168.1.102"
             />
-            <p className="text-[10px] text-gray-400 mt-1 italic">* Necessário para monitoramento em tempo real.</p>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 italic font-bold uppercase tracking-tighter">* Necessário para monitoramento em tempo real.</p>
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Conexão</label>
+            <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Tipo de Conexão</label>
             <select
               value={formData.tipo_conexao}
               onChange={(e) => setFormData({ ...formData, tipo_conexao: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF9B54] outline-none font-bold text-[#2A3240]"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-[#FF9B54] outline-none font-black text-[#2A3240] dark:text-gray-200 text-xs transition-all"
             >
               <option value="manual">Manual (Sem conexão)</option>
               <option value="klipper">Klipper / Moonraker (K1, K1 Max, K1C)</option>
@@ -102,12 +102,12 @@ export default function ModalNovaImpressora({ isOpen, onClose, onSucesso }) {
             </select>
           </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-black text-gray-500 uppercase tracking-widest hover:text-red-500 transition-colors order-2 sm:order-1">Cancelar</button>
+          <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 transition-colors">
+            <button type="button" onClick={onClose} className="px-6 py-3 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-red-500 transition-all order-2 sm:order-1">Cancelar</button>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-[#2A3240] hover:bg-gray-800 text-white font-black rounded-lg shadow-sm transition-colors uppercase text-xs disabled:opacity-50"
+              className="px-8 py-4 bg-[#2A3240] dark:bg-orange-500 hover:bg-gray-800 dark:hover:bg-orange-600 text-white font-black rounded-xl transition-all shadow-xl shadow-orange-500/10 uppercase text-xs tracking-widest disabled:opacity-50"
             >
               {loading ? 'Salvando...' : 'Cadastrar Máquina'}
             </button>

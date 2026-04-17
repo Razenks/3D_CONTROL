@@ -85,43 +85,43 @@ export default function Clientes() {
 
   return (
     <Layout>
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#1a1f2e] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <div>
-          <h2 className="text-2xl font-black text-[#2A3240] uppercase tracking-tighter">
+          <h2 className="text-2xl font-black text-[#2A3240] dark:text-white uppercase tracking-tighter">
             Gestão de Clientes
           </h2>
-          <p className="text-sm text-gray-500 font-medium mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">
             Cadastre e gerencie os contatos da RB PRINTINGS.
           </p>
         </div>
         
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#2A3240] hover:bg-gray-800 text-white font-black py-3 px-8 rounded-xl transition-all shadow-lg uppercase text-xs tracking-widest"
+          className="bg-[#2A3240] dark:bg-orange-500 hover:bg-gray-800 dark:hover:bg-orange-600 text-white font-black py-3 px-8 rounded-xl transition-all shadow-lg uppercase text-xs tracking-widest"
         >
           + Novo Cliente
         </button>
       </div>
 
-      <div className="flex gap-4 mb-6 border-b border-gray-100 pb-1">
+      <div className="flex gap-4 mb-6 border-b border-gray-100 dark:border-gray-800 pb-1">
         <button 
           onClick={() => setActiveTab('CPF')}
-          className={`pb-3 px-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === 'CPF' ? 'border-[#FF9B54] text-[#2A3240]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+          className={`pb-3 px-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === 'CPF' ? 'border-[#FF9B54] text-[#2A3240] dark:text-white' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
         >
           Pessoas Físicas (CPF)
         </button>
         <button 
           onClick={() => setActiveTab('CNPJ')}
-          className={`pb-3 px-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === 'CNPJ' ? 'border-[#FF9B54] text-[#2A3240]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+          className={`pb-3 px-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === 'CNPJ' ? 'border-[#FF9B54] text-[#2A3240] dark:text-white' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
         >
           Pessoas Jurídicas (CNPJ)
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-300">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-widest">
+            <thead className="bg-gray-50 dark:bg-gray-800/20 text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest">
               <tr>
                 <th className="px-6 py-4">ID / Nome</th>
                 <th className="px-6 py-4">Tipo</th>
@@ -130,40 +130,40 @@ export default function Clientes() {
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {loading ? (
                 <tr><td colSpan="5" className="px-6 py-10 text-center text-gray-400 animate-pulse font-bold uppercase text-xs">Carregando...</td></tr>
               ) : clientesFiltrados.length > 0 ? (
                 clientesFiltrados.map((c) => (
-                  <tr key={c.id} className={`hover:bg-gray-50/50 transition-colors ${!c.ativo ? 'opacity-40 grayscale bg-gray-50' : ''}`}>
+                  <tr key={c.id} className={`hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors ${!c.ativo ? 'opacity-40 grayscale bg-gray-50 dark:bg-gray-900' : ''}`}>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="font-black text-[#2A3240] text-sm uppercase">CLI-{c.id.toString().padStart(3, '0')}</span>
-                        <span className="text-gray-600 font-bold">{c.nome}</span>
+                        <span className="font-black text-[#2A3240] dark:text-gray-200 text-sm uppercase leading-none mb-1">CLI-{c.id.toString().padStart(3, '0')}</span>
+                        <span className="text-gray-600 dark:text-gray-400 font-bold text-xs">{c.nome}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase border ${c.tipo === 'CNPJ' ? 'bg-purple-50 text-purple-700 border-purple-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase border ${c.tipo === 'CNPJ' ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-500/20' : 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20'}`}>
                         {c.tipo || 'CPF'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-xs font-bold text-gray-500">{c.email || 'S/ E-mail'}</div>
+                      <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{c.email || 'S/ E-mail'}</div>
                       <div className="text-xs font-black text-[#FF9B54]">{c.telefone || 'S/ Telefone'}</div>
                     </td>
                     <td className="px-6 py-4 max-w-xs">
-                      <div className="text-[10px] font-black text-gray-400 uppercase truncate">
+                      <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase truncate">
                         {c.tipo === 'CNPJ' ? (c.cnpj || 'S/ CNPJ') : (c.cpf || 'S/ CPF')}
                       </div>
-                      <div className="text-xs text-gray-500 italic truncate">{c.endereco || 'Endereço não informado'}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 italic truncate">{c.endereco || 'Endereço não informado'}</div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-3">
-                        <button onClick={() => handleEdit(c)} className="text-gray-400 hover:text-blue-600 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                      <div className="flex justify-end gap-4">
+                        <button onClick={() => handleEdit(c)} className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
                         
                         <button 
                             onClick={() => handleToggleAtivo(c)} 
-                            className={`${c.ativo ? 'text-gray-300 hover:text-red-500' : 'text-green-500 hover:text-green-700'} transition-colors`}
+                            className={`${c.ativo ? 'text-gray-300 hover:text-red-500 dark:hover:text-red-400' : 'text-green-500 hover:text-green-700'} transition-colors`}
                             title={c.ativo ? 'Desativar' : 'Ativar'}
                         >
                             {c.ativo ? (
@@ -179,7 +179,7 @@ export default function Clientes() {
 
                         <button 
                           onClick={() => handleDelete(c.id)}
-                          className="text-gray-200 hover:text-black transition-colors"
+                          className="text-gray-200 dark:text-gray-700 hover:text-black dark:hover:text-white transition-colors"
                           title="Excluir Permanentemente"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -189,7 +189,7 @@ export default function Clientes() {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400 italic font-medium">Nenhum cliente {activeTab} cadastrado nesta aba.</td></tr>
+                <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400 dark:text-gray-600 italic font-medium font-bold uppercase text-[10px] tracking-widest">Nenhum cliente {activeTab} encontrado.</td></tr>
               )}
             </tbody>
           </table>

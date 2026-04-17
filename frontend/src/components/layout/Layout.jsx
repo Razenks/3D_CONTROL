@@ -53,7 +53,7 @@ export default function Layout({ children }) {
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
         {/* Conteúdo dinâmico */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-[#111827] p-4 md:p-6 transition-colors duration-300">
           {children}
         </main>
 

@@ -55,26 +55,26 @@ export default function EstoqueProdutos() {
 
   return (
     <Layout>
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-[#1a1f2e] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <div>
-          <h2 className="text-2xl font-black text-[#2A3240] uppercase tracking-tighter">Estoque de Produtos</h2>
-          <p className="text-sm text-gray-500 font-medium">Itens prontos para venda imediata.</p>
+          <h2 className="text-2xl font-black text-[#2A3240] dark:text-white uppercase tracking-tighter">Estoque de Produtos</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Itens prontos para venda imediata.</p>
         </div>
         
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input 
                 type="checkbox" 
                 checked={mostrarEsgotados} 
                 onChange={(e) => setMostrarEsgotados(e.target.checked)}
-                className="w-4 h-4 text-[#FF9B54] border-gray-300 rounded focus:ring-[#FF9B54]"
+                className="w-4 h-4 text-[#FF9B54] border-gray-300 dark:border-gray-700 rounded focus:ring-[#FF9B54] dark:bg-gray-800"
             />
-            <span className="text-xs font-bold text-gray-500 uppercase">Mostrar Esgotados / Inativos</span>
+            <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest group-hover:text-[#FF9B54] transition-colors">Mostrar Esgotados</span>
           </label>
 
           <button 
             onClick={() => setIsModalOpen(true)} 
-            className="bg-[#2A3240] hover:bg-gray-800 text-white font-black py-3 px-8 rounded-xl shadow-lg uppercase text-xs tracking-widest transition-all"
+            className="bg-[#2A3240] dark:bg-orange-500 hover:bg-gray-800 dark:hover:bg-orange-600 text-white font-black py-3 px-8 rounded-xl shadow-lg uppercase text-xs tracking-widest transition-all"
           >
             + Novo Produto
           </button>

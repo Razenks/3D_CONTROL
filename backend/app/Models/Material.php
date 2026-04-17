@@ -18,6 +18,7 @@ class Material extends Model
         'hex_cor',
         'custo_unidade',
         'quantidade_restante',
+        'estoque_minimo',
         'unidade',
         'ativo'
     ];
